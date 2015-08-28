@@ -8,7 +8,7 @@ public class JenkinsPathBuilderTest {
     @Test
     public void buildPathForDataset() {
         JenkinsPathBuilder pathBuilder = new JenkinsPathBuilder();
-        String path = pathBuilder.build("data-sets");
+        String path = pathBuilder.build("job", "data-sets");
         assertEquals("/job/data-sets/api/json", path);
     }
 }

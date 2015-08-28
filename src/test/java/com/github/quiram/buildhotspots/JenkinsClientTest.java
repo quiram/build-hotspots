@@ -1,5 +1,6 @@
 package com.github.quiram.buildhotspots;
 
+import com.github.quiram.buildhotspots.beans.Build;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -10,6 +11,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.time.LocalDateTime.parse;
@@ -70,6 +72,31 @@ public class JenkinsClientTest {
         LocalDateTime expectedDate = parse(oldestBuildDatetime);
 
         assertThat(date).isEqualTo(expectedDate);
+    }
+
+    @Test
+    public void getListOfOneBuild() {
+        stubReturnsListOfBuildsFrom("list-of-one-build.json");
+
+        List<Build> allBuilds = jenkinsClient.getAllBuilds();
+        assertEquals(1, allBuilds.size());
+        assertThat(allBuilds).contains(new Build("build-one"));
+    }
+
+    @Test
+    public void getListOfAllBuilds() {
+        stubReturnsListOfBuildsFrom("list-of-multiple-builds.json");
+
+        List<Build> allBuilds = jenkinsClient.getAllBuilds();
+        assertEquals(3, allBuilds.size());
+    }
+
+    private void stubReturnsListOfBuildsFrom(String fileName) {
+        stubFor(get(urlEqualTo("/api/json"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile(fileName)));
     }
 
     private void mockOldestBuildNumber(String jobName, int oldestBuildNumber) {

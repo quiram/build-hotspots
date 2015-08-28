@@ -1,6 +1,8 @@
 package com.github.quiram.buildhotspots;
 
+import com.github.quiram.buildhotspots.beans.Build;
 import com.github.quiram.buildhotspots.beans.FirstBuildResponseBean;
+import com.github.quiram.buildhotspots.beans.GetBuildsResponse;
 import com.github.quiram.buildhotspots.beans.TimestampBean;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -8,6 +10,7 @@ import javax.ws.rs.client.WebTarget;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 public class JenkinsClient {
 
@@ -19,13 +22,13 @@ public class JenkinsClient {
     }
 
     public int getOldestBuildNumber(String buildName) {
-        FirstBuildResponseBean buildNumberBean = requestData(FirstBuildResponseBean.class, "firstBuild[number]", buildName);
+        FirstBuildResponseBean buildNumberBean = requestData(FirstBuildResponseBean.class, "firstBuild[number]", "job", buildName);
 
         return buildNumberBean.getNumber();
     }
 
     public LocalDateTime getDateOfOldestAvailableBuild(String buildName) {
-        TimestampBean timeStampBean = requestData(TimestampBean.class, "timestamp[*]", buildName, getOldestBuildNumber(buildName));
+        TimestampBean timeStampBean = requestData(TimestampBean.class, "timestamp[*]", "job", buildName, getOldestBuildNumber(buildName));
 
         Instant instant = Instant.ofEpochMilli(timeStampBean.getTimestamp());
 
@@ -36,5 +39,11 @@ public class JenkinsClient {
         String requestUrl = pathBuilder.build(pathElements);
         // TODO: Use the filter!
         return target.path(requestUrl).request().get(returnType);
+    }
+
+    public List<Build> getAllBuilds() {
+        final GetBuildsResponse response = requestData(GetBuildsResponse.class, "");
+
+        return response.getJobs();
     }
 }

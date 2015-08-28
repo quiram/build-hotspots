@@ -1,0 +1,42 @@
+{
+  "assignedLabels": [
+    {
+    }
+  ],
+  "mode": "NORMAL",
+  "nodeDescription": "the master Jenkins node",
+  "nodeName": "",
+  "numExecutors": 1,
+  "description": null,
+  "jobs": [
+    {
+      "name": "build-one",
+      "url": "http://localhost:8080/job/build-one/",
+      "color": "red"
+    },
+    {
+      "name": "build-two",
+      "url": "http://localhost:8080/job/build-two/",
+      "color": "red"
+    },
+    {
+      "name": "build-three",
+      "url": "http://localhost:8080/job/build-three/",
+      "color": "red"
+    }
+  ],
+  "overallLoad": {
+  },
+  "primaryView": {
+    "name": "All",
+    "url": "http://localhost:8080/"
+  },
+  "quietingDown": false,
+  "slaveAgentPort": 0,
+  "unlabeledLoad": {
+  },
+  "useCrumbs": false,
+  "useSecurity": true,
+  "views": [
+  ]
+}
