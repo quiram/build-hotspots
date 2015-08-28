@@ -1,6 +1,4 @@
-Objective
-
-Things to do / Milestones
+## Things to do / Milestones
 
 - CI clients should be able to:
     - Obtain list of all build configurations
