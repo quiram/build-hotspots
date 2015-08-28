@@ -1,9 +1,9 @@
-package com.github.quiram.buildhotspots;
+package com.github.quiram.buildhotspots.clients;
 
-import com.github.quiram.buildhotspots.beans.Build;
-import com.github.quiram.buildhotspots.beans.FirstBuildResponseBean;
-import com.github.quiram.buildhotspots.beans.GetBuildsResponse;
-import com.github.quiram.buildhotspots.beans.TimestampBean;
+import com.github.quiram.buildhotspots.clients.beans.Build;
+import com.github.quiram.buildhotspots.clients.beans.FirstBuildResponseBean;
+import com.github.quiram.buildhotspots.clients.beans.GetBuildsResponse;
+import com.github.quiram.buildhotspots.clients.beans.TimestampBean;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;

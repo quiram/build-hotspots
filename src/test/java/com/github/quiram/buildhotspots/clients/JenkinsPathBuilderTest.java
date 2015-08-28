@@ -1,4 +1,4 @@
-package com.github.quiram.buildhotspots;
+package com.github.quiram.buildhotspots.clients;
 
 import org.junit.Test;
 

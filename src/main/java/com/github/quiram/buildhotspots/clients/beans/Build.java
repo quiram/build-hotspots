@@ -1,4 +1,4 @@
-package com.github.quiram.buildhotspots.beans;
+package com.github.quiram.buildhotspots.clients.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,5 +25,10 @@ public class Build {
     @Override
     public int hashCode() {
         return buildName.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return buildName;
     }
 }
