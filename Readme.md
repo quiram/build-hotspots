@@ -10,7 +10,7 @@ To be fair, it's not automated yet, that's what this project is about. To know m
 ## Things to do / Milestones
 
 - CI clients should be able to:
-    - Obtain list of all build configurations
+    - Obtain list of all build configurations -- DONE
     - Obtain upstream / downstream dependencies of a build configuration
     - Obtain date of a particular build run
     - Obtain oldest available build run
