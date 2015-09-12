@@ -1,0 +1,125 @@
+{
+  "actions": [
+    {
+    },
+    {
+    },
+    {
+    },
+    null,
+    {
+    }
+  ],
+  "description": "",
+  "displayName": "project-one",
+  "displayNameOrNull": null,
+  "name": "project-one",
+  "url": "https://localhost:8080/job/project-one/",
+  "buildable": true,
+  "builds": [
+    {
+      "number": 275,
+      "url": "https://localhost:8080/job/project-one/275/"
+    },
+    {
+      "number": 274,
+      "url": "https://localhost:8080/job/project-one/274/"
+    },
+    {
+      "number": 273,
+      "url": "https://localhost:8080/job/project-one/273/"
+    },
+    {
+      "number": 272,
+      "url": "https://localhost:8080/job/project-one/272/"
+    },
+    {
+      "number": 271,
+      "url": "https://localhost:8080/job/project-one/271/"
+    },
+    {
+      "number": 270,
+      "url": "https://localhost:8080/job/project-one/270/"
+    },
+    {
+      "number": 269,
+      "url": "https://localhost:8080/job/project-one/269/"
+    },
+    {
+      "number": 268,
+      "url": "https://localhost:8080/job/project-one/268/"
+    },
+    {
+      "number": 267,
+      "url": "https://localhost:8080/job/project-one/267/"
+    },
+    {
+      "number": 266,
+      "url": "https://localhost:8080/job/project-one/266/"
+    }
+  ],
+  "color": "blue",
+  "firstBuild": {
+    "number": 266,
+    "url": "https://localhost:8080/job/project-one/266/"
+  },
+  "healthReport": [
+    {
+      "description": "Build stability: 3 out of the last 5 builds failed.",
+      "iconClassName": "icon-health-20to39",
+      "iconUrl": "health-20to39.png",
+      "score": 40
+    },
+    {
+      "description": "Test Result: 0 tests failing out of a total of 470 tests.",
+      "iconClassName": "icon-health-80plus",
+      "iconUrl": "health-80plus.png",
+      "score": 100
+    }
+  ],
+  "inQueue": false,
+  "keepDependencies": false,
+  "lastBuild": {
+    "number": 275,
+    "url": "https://localhost:8080/job/project-one/275/"
+  },
+  "lastCompletedBuild": {
+    "number": 275,
+    "url": "https://localhost:8080/job/project-one/275/"
+  },
+  "lastFailedBuild": {
+    "number": 274,
+    "url": "https://localhost:8080/job/project-one/274/"
+  },
+  "lastStableBuild": {
+    "number": 275,
+    "url": "https://localhost:8080/job/project-one/275/"
+  },
+  "lastSuccessfulBuild": {
+    "number": 275,
+    "url": "https://localhost:8080/job/project-one/275/"
+  },
+  "lastUnstableBuild": null,
+  "lastUnsuccessfulBuild": {
+    "number": 274,
+    "url": "https://localhost:8080/job/project-one/274/"
+  },
+  "nextBuildNumber": 276,
+  "property": [
+    {
+    }
+  ],
+  "queueItem": null,
+  "concurrentBuild": false,
+  "downstreamProjects": [],
+  "scm": {
+  },
+  "upstreamProjects": [
+    {
+      "name": "root-project",
+      "url": "https://localhost:8080/job/root-project/",
+      "color": "blue"
+    }
+  ],
+  "modules": []
+}

@@ -11,25 +11,28 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.lang.String.format;
 import static java.time.LocalDateTime.parse;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class JenkinsClientTest {
 
     public static final String DATASETS_SERVICE = "datasets-service";
+    public static final int PORT = 8080;
+    public static final String JENKINS_BASE_URL = format("http://localhost:%s/", PORT);
     private JenkinsClient jenkinsClient;
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8080);
+    public WireMockRule wireMockRule = new WireMockRule(PORT);
     public static final int DATASETS_SERVICE_OLDEST_BUILD_NUMBER = 51;
 
     @Before
     public void setUp() throws Exception {
-        jenkinsClient = new JenkinsClient("http://localhost:8080/");
+        jenkinsClient = new JenkinsClient(JENKINS_BASE_URL);
 
         mockOldestBuildNumber(DATASETS_SERVICE, DATASETS_SERVICE_OLDEST_BUILD_NUMBER);
     }
@@ -43,7 +46,7 @@ public class JenkinsClientTest {
         stubFor(get(urlEqualTo("/")).withQueryParam("tree", equalTo("firstBuild[number]")).
                 willReturn(aResponse().withStatus(200).withBody("it works!")));
 
-        WebTarget target = ClientBuilder.newClient().target("http://localhost:8080/");
+        WebTarget target = ClientBuilder.newClient().target(format("http://localhost:%s/", PORT));
         String s = target.path("").queryParam("tree", "firstBuild[number]").request().get(String.class);
         assertEquals("it works!", s);
     }
@@ -68,7 +71,7 @@ public class JenkinsClientTest {
         String jobName = DATASETS_SERVICE;
         String oldestBuildDatetime = mockDateOfBuild(jobName, DATASETS_SERVICE_OLDEST_BUILD_NUMBER);
 
-        LocalDateTime date = jenkinsClient.getDateOfOldestAvailableBuild(DATASETS_SERVICE);
+        LocalDateTime date = jenkinsClient.getDateOfOldestAvailableFor(new BuildConfiguration(DATASETS_SERVICE));
         LocalDateTime expectedDate = parse(oldestBuildDatetime);
 
         assertThat(date).isEqualTo(expectedDate);
@@ -89,6 +92,35 @@ public class JenkinsClientTest {
 
         BuildConfigurations buildConfigurations = jenkinsClient.getAllBuildConfigurations();
         assertEquals(3, buildConfigurations.size());
+    }
+
+    @Test
+    public void getDependenciesForBuildWithOneDependency() {
+        final String jobName = "project-one";
+        stubReturnsListOfDependenciesFor(jobName);
+
+        List<String> dependencies = jenkinsClient.getDependenciesFor(jobName);
+        assertNotNull(dependencies);
+        assertEquals(1, dependencies.size());
+        assertEquals("root-project", dependencies.get(0));
+    }
+
+    @Test
+    public void getDependenciesForBuildWithMultipleDependency() {
+        final String jobName = "project-two";
+        stubReturnsListOfDependenciesFor(jobName);
+
+        List<String> dependencies = jenkinsClient.getDependenciesFor(jobName);
+        assertNotNull(dependencies);
+        assertEquals(3, dependencies.size());
+    }
+
+    private void stubReturnsListOfDependenciesFor(String buildName) {
+        stubFor(get(urlEqualTo(format("/%s/api/json", buildName)))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile(format("job-info-%s.json", buildName))));
     }
 
     private void stubReturnsListOfBuildsFrom(String fileName) {

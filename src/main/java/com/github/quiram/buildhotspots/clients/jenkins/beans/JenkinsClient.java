@@ -9,6 +9,9 @@ import javax.ws.rs.client.WebTarget;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public class JenkinsClient implements CiClient {
 
@@ -25,8 +28,9 @@ public class JenkinsClient implements CiClient {
         return buildNumberBean.getNumber();
     }
 
-    public LocalDateTime getDateOfOldestAvailableBuild(String buildName) {
-        TimestampBean timeStampBean = requestData(TimestampBean.class, "timestamp[*]", "job", buildName, getOldestBuildNumber(buildName));
+    public LocalDateTime getDateOfOldestAvailableFor(BuildConfiguration buildConfiguration) {
+        final String buildConfigName = buildConfiguration.getName();
+        TimestampBean timeStampBean = requestData(TimestampBean.class, "timestamp[*]", "job", buildConfigName, getOldestBuildNumber(buildConfigName));
 
         Instant instant = Instant.ofEpochMilli(timeStampBean.getTimestamp());
 
@@ -48,5 +52,12 @@ public class JenkinsClient implements CiClient {
         response.getJobs().forEach(job -> buildConfigurations.add(new BuildConfiguration(job.getName())));
 
         return buildConfigurations;
+    }
+
+    @Override
+    public List<String> getDependenciesFor(String jobName) {
+        final GetBuildResponse response = requestData(GetBuildResponse.class, "job", jobName);
+        final List<UpstreamProject> upstreamProjects = response.getUpstreamProjects();
+        return upstreamProjects.stream().map(UpstreamProject::getName).collect(toList());
     }
 }
