@@ -71,7 +71,7 @@ public class JenkinsClientTest {
         String jobName = DATASETS_SERVICE;
         String oldestBuildDatetime = mockDateOfBuild(jobName, DATASETS_SERVICE_OLDEST_BUILD_NUMBER);
 
-        LocalDateTime date = jenkinsClient.getDateOfOldestAvailableFor(new BuildConfiguration(DATASETS_SERVICE));
+        LocalDateTime date = jenkinsClient.getDateOfOldestAvailableFor(DATASETS_SERVICE);
         LocalDateTime expectedDate = parse(oldestBuildDatetime);
 
         assertThat(date).isEqualTo(expectedDate);

@@ -1,6 +1,5 @@
 package com.github.quiram.buildhotspots.clients.jenkins.beans;
 
-import com.github.quiram.buildhotspots.clients.BuildConfiguration;
 import com.github.quiram.buildhotspots.clients.CiClient;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -27,9 +26,8 @@ public class JenkinsClient implements CiClient {
         return buildNumberBean.getNumber();
     }
 
-    public LocalDateTime getDateOfOldestAvailableFor(BuildConfiguration buildConfiguration) {
-        final String buildConfigName = buildConfiguration.getName();
-        TimestampBean timeStampBean = requestData(TimestampBean.class, "timestamp[*]", "job", buildConfigName, getOldestBuildNumber(buildConfigName));
+    public LocalDateTime getDateOfOldestAvailableFor(String jobName) {
+        TimestampBean timeStampBean = requestData(TimestampBean.class, "timestamp[*]", "job", jobName, getOldestBuildNumber(jobName));
 
         Instant instant = Instant.ofEpochMilli(timeStampBean.getTimestamp());
 
