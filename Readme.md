@@ -1,7 +1,16 @@
+## Introduction
+
+Build Hotspots is (or rather will be) a CI/CD visualitation tool that analyses build data and shows the builds that are run most often and how long they take in a graphical way; some people have described this as a "4D representation of the build system."
+
+<blockquote class="twitter-tweet" data-partner="tweetdeck"><p lang="en" dir="ltr">I like <a href="https://twitter.com/AbrahamMarin">@AbrahamMarin</a> Build-Driven Architecture, using auto-generated 4D dependency graphs. Thanks to <a href="https://twitter.com/skillsmatter">@skillsmatter</a> <a href="http://t.co/0i4AvgfrWe">pic.twitter.com/0i4AvgfrWe</a></p>&mdash; michael aubert (@michaelaubertfr) <a href="https://twitter.com/michaelaubertfr/status/601468704803557376">May 21, 2015</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+To be fair, it's not automated yet, that's what this project is about. To know more about what Build Hotspots can be used for, whatch this <a href="https://www.parleys.com/play/what-your-build-telling-you-about-your-application-structure">short presentation</a> (it's about 10 minutes only) that I gave at Devoxx UK 2015.
+
 ## Things to do / Milestones
 
 - CI clients should be able to:
-    - Obtain list of all build configurations
+    - Obtain list of all build configurations -- DONE
     - Obtain upstream / downstream dependencies of a build configuration
     - Obtain date of a particular build run
     - Obtain oldest available build run
@@ -21,12 +30,12 @@
  a build wit frequency F will be: colour = blue * (MAX - F) / (MAX - MIN) + red * (F - MIN) / (MAX - MIN)
 
 
-- Visualisation (JS?)
+- Visualisation (JavaFX?)
     - Graph DAG with colours and sizes
     - Hover to display build configuration name
 
 
-- Container
+- Container (would have to be done in JS, not sure about integration)
     - Chrome plugin
     - Mozilla plugin
 
