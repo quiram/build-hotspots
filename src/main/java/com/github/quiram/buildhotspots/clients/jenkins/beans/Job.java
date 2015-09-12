@@ -4,31 +4,35 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Build {
-    private final String buildName;
+public class Job {
+    private final String name;
 
-    public Build(@JsonProperty("name") String buildName) {
-        this.buildName = buildName;
+    public Job(@JsonProperty("name") String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Build)) {
+        if (!(o instanceof Job)) {
             return false;
         }
 
-        Build otherBuild = Build.class.cast(o);
+        Job otherBuild = Job.class.cast(o);
 
-        return buildName.equals(otherBuild.buildName);
+        return name.equals(otherBuild.name);
     }
 
     @Override
     public int hashCode() {
-        return buildName.hashCode();
+        return name.hashCode();
     }
 
     @Override
     public String toString() {
-        return buildName;
+        return name;
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -6,25 +6,25 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class BuildTest {
+public class JobTest {
 
-    private Build build;
+    private Job build;
 
     @Before
     public void setUp() throws Exception {
-        build = new Build("build");
+        build = new Job("build");
     }
 
     @Test
     public void identicallyCreatedBuildsAreEqual() {
-        Build build2 = new Build("build");
+        Job build2 = new Job("build");
         assertEquals(build, build2);
         assertEquals(build.hashCode(), build2.hashCode());
     }
 
     @Test
     public void buildsWithDifferentNamesAreNotEqual() {
-        Build build2 = new Build("build2");
+        Job build2 = new Job("build2");
         assertFalse(build.equals(build2));
         assertFalse(build.hashCode() == build2.hashCode());
     }

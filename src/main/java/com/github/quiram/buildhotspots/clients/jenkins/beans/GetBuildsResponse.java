@@ -8,9 +8,9 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetBuildsResponse {
     @JsonProperty("jobs")
-    List<Build> jobs;
+    List<Job> jobs;
 
-    public List<Build> getJobs() {
+    public List<Job> getJobs() {
         return jobs;
     }
 }

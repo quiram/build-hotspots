@@ -1,5 +1,7 @@
 package com.github.quiram.buildhotspots.clients.jenkins.beans;
 
+import com.github.quiram.buildhotspots.clients.BuildConfiguration;
+import com.github.quiram.buildhotspots.clients.BuildConfigurations;
 import com.github.quiram.buildhotspots.clients.CiClient;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -7,7 +9,6 @@ import javax.ws.rs.client.WebTarget;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 
 public class JenkinsClient implements CiClient {
 
@@ -39,9 +40,13 @@ public class JenkinsClient implements CiClient {
     }
 
     @Override
-    public List<Build> getAllBuilds() {
+    public BuildConfigurations getAllBuildConfigurations() {
         final GetBuildsResponse response = requestData(GetBuildsResponse.class, "");
 
-        return response.getJobs();
+        BuildConfigurations buildConfigurations = new BuildConfigurations();
+
+        response.getJobs().forEach(job -> buildConfigurations.add(new BuildConfiguration(job.getName())));
+
+        return buildConfigurations;
     }
 }
