@@ -81,16 +81,16 @@ public class JenkinsClientTest {
     public void getListOfOneBuild() {
         stubReturnsListOfBuildsFrom("list-of-one-build.json");
 
-        BuildConfigurations allBuilds = jenkinsClient.getAllBuildConfigurations();
+        List<String> allBuilds = jenkinsClient.getAllBuildConfigurations();
         assertEquals(1, allBuilds.size());
-        assertTrue(allBuilds.contains(new BuildConfiguration("build-one")));
+        assertTrue(allBuilds.contains("build-one"));
     }
 
     @Test
     public void getListOfAllBuilds() {
         stubReturnsListOfBuildsFrom("list-of-multiple-builds.json");
 
-        BuildConfigurations buildConfigurations = jenkinsClient.getAllBuildConfigurations();
+        List<String> buildConfigurations = jenkinsClient.getAllBuildConfigurations();
         assertEquals(3, buildConfigurations.size());
     }
 

@@ -1,7 +1,5 @@
 package com.github.quiram.buildhotspots;
 
-import com.github.quiram.buildhotspots.clients.BuildConfiguration;
-import com.github.quiram.buildhotspots.clients.BuildConfigurations;
 import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -75,7 +73,7 @@ public class BuildHotspotsApp extends Application {
 
 
         JenkinsClient jenkinsClient = new JenkinsClient(url);
-        final BuildConfigurations allBuildConfigurations = jenkinsClient.getAllBuildConfigurations();
+        final List<String> allBuildConfigurations = jenkinsClient.getAllBuildConfigurations();
 
         final int rows = 3;
         final int cols = 4;
@@ -90,12 +88,12 @@ public class BuildHotspotsApp extends Application {
 
     }
 
-    private StackPane paintBuild(BuildConfiguration buildConfiguration) {
+    private StackPane paintBuild(String buildConfigurationName) {
         StackPane stack = new StackPane();
 
         final Circle circle = new Circle(90, Color.web("blue"));
         stack.getChildren().add(circle);
-        final Text text = new Text(buildConfiguration.getName());
+        final Text text = new Text(buildConfigurationName);
         text.setBoundsType(TextBoundsType.VISUAL);
         stack.getChildren().add(text);
 
