@@ -1,7 +1,8 @@
 package com.github.quiram.buildhotspots;
 
-import com.github.quiram.buildhotspots.clients.JenkinsClient;
-import com.github.quiram.buildhotspots.clients.beans.Build;
+import com.github.quiram.buildhotspots.clients.BuildConfiguration;
+import com.github.quiram.buildhotspots.clients.BuildConfigurations;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -74,11 +75,11 @@ public class BuildHotspotsApp extends Application {
 
 
         JenkinsClient jenkinsClient = new JenkinsClient(url);
-        final List<Build> allBuilds = jenkinsClient.getAllBuilds();
+        final BuildConfigurations allBuildConfigurations = jenkinsClient.getAllBuildConfigurations();
 
         final int rows = 3;
         final int cols = 4;
-        final List<StackPane> objectsToDraw = IntStream.range(0, rows * cols).mapToObj(i -> paintBuild(allBuilds.get(i))).collect(toList());
+        final List<StackPane> objectsToDraw = IntStream.range(0, rows * cols).mapToObj(i -> paintBuild(allBuildConfigurations.get(i))).collect(toList());
 
         IntStream.range(0, cols).forEach(i -> {
                     IntStream.range(0, rows).forEach(j -> {
@@ -89,12 +90,12 @@ public class BuildHotspotsApp extends Application {
 
     }
 
-    private StackPane paintBuild(Build build) {
+    private StackPane paintBuild(BuildConfiguration buildConfiguration) {
         StackPane stack = new StackPane();
 
         final Circle circle = new Circle(90, Color.web("blue"));
         stack.getChildren().add(circle);
-        final Text text = new Text(build.toString());
+        final Text text = new Text(buildConfiguration.getName());
         text.setBoundsType(TextBoundsType.VISUAL);
         stack.getChildren().add(text);
 

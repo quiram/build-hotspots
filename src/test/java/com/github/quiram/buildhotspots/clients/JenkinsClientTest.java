@@ -1,6 +1,6 @@
 package com.github.quiram.buildhotspots.clients;
 
-import com.github.quiram.buildhotspots.clients.beans.Build;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -11,12 +11,12 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.time.LocalDateTime.parse;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JenkinsClientTest {
 
@@ -78,17 +78,17 @@ public class JenkinsClientTest {
     public void getListOfOneBuild() {
         stubReturnsListOfBuildsFrom("list-of-one-build.json");
 
-        List<Build> allBuilds = jenkinsClient.getAllBuilds();
+        BuildConfigurations allBuilds = jenkinsClient.getAllBuildConfigurations();
         assertEquals(1, allBuilds.size());
-        assertThat(allBuilds).contains(new Build("build-one"));
+        assertTrue(allBuilds.contains(new BuildConfiguration("build-one")));
     }
 
     @Test
     public void getListOfAllBuilds() {
         stubReturnsListOfBuildsFrom("list-of-multiple-builds.json");
 
-        List<Build> allBuilds = jenkinsClient.getAllBuilds();
-        assertEquals(3, allBuilds.size());
+        BuildConfigurations buildConfigurations = jenkinsClient.getAllBuildConfigurations();
+        assertEquals(3, buildConfigurations.size());
     }
 
     private void stubReturnsListOfBuildsFrom(String fileName) {

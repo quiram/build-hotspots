@@ -1,4 +1,4 @@
-package com.github.quiram.buildhotspots.clients.beans;
+package com.github.quiram.buildhotspots.clients.jenkins.beans;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
