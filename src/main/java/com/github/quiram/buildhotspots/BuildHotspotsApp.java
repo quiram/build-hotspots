@@ -1,7 +1,7 @@
 package com.github.quiram.buildhotspots;
 
-import com.github.quiram.buildhotspots.clients.JenkinsClient;
-import com.github.quiram.buildhotspots.clients.beans.Build;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.Build;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

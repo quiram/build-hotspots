@@ -1,4 +1,4 @@
-package com.github.quiram.buildhotspots.clients;
+package com.github.quiram.buildhotspots.clients.jenkins.beans;
 
 public class JenkinsPathBuilder {
     public String build(Object... params) {

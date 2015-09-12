@@ -1,6 +1,7 @@
 package com.github.quiram.buildhotspots.clients;
 
-import com.github.quiram.buildhotspots.clients.beans.Build;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.Build;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
 import org.junit.Ignore;

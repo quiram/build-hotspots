@@ -1,9 +1,6 @@
-package com.github.quiram.buildhotspots.clients;
+package com.github.quiram.buildhotspots.clients.jenkins.beans;
 
-import com.github.quiram.buildhotspots.clients.beans.Build;
-import com.github.quiram.buildhotspots.clients.beans.FirstBuildResponseBean;
-import com.github.quiram.buildhotspots.clients.beans.GetBuildsResponse;
-import com.github.quiram.buildhotspots.clients.beans.TimestampBean;
+import com.github.quiram.buildhotspots.clients.CiClient;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -12,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-public class JenkinsClient {
+public class JenkinsClient implements CiClient {
 
     private WebTarget target;
     private JenkinsPathBuilder pathBuilder = new JenkinsPathBuilder();
@@ -41,6 +38,7 @@ public class JenkinsClient {
         return target.path(requestUrl).request().get(returnType);
     }
 
+    @Override
     public List<Build> getAllBuilds() {
         final GetBuildsResponse response = requestData(GetBuildsResponse.class, "");
 
