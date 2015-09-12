@@ -1,5 +1,6 @@
 package com.github.quiram.buildhotspots.clients;
 
+import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsPathBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

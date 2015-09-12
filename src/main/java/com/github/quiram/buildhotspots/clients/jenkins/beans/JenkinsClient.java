@@ -1,18 +1,16 @@
-package com.github.quiram.buildhotspots.clients;
+package com.github.quiram.buildhotspots.clients.jenkins.beans;
 
-import com.github.quiram.buildhotspots.clients.beans.Build;
-import com.github.quiram.buildhotspots.clients.beans.FirstBuildResponseBean;
-import com.github.quiram.buildhotspots.clients.beans.GetBuildsResponse;
-import com.github.quiram.buildhotspots.clients.beans.TimestampBean;
+import com.github.quiram.buildhotspots.clients.BuildConfiguration;
+import com.github.quiram.buildhotspots.clients.BuildConfigurations;
+import com.github.quiram.buildhotspots.clients.CiClient;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 
-public class JenkinsClient {
+public class JenkinsClient implements CiClient {
 
     private WebTarget target;
     private JenkinsPathBuilder pathBuilder = new JenkinsPathBuilder();
@@ -41,9 +39,14 @@ public class JenkinsClient {
         return target.path(requestUrl).request().get(returnType);
     }
 
-    public List<Build> getAllBuilds() {
+    @Override
+    public BuildConfigurations getAllBuildConfigurations() {
         final GetBuildsResponse response = requestData(GetBuildsResponse.class, "");
 
-        return response.getJobs();
+        BuildConfigurations buildConfigurations = new BuildConfigurations();
+
+        response.getJobs().forEach(job -> buildConfigurations.add(new BuildConfiguration(job.getName())));
+
+        return buildConfigurations;
     }
 }
