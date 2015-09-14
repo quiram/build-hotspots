@@ -1,8 +1,13 @@
 package com.github.quiram.buildhotspots.visualisation;
 
-import javafx.scene.paint.Color;import java.awt.image.BufferedImage;
+import javafx.scene.paint.Color;
+
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.imageio.ImageIO;
 
 import javafx.animation.AnimationTimer;
@@ -19,6 +24,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 /*
@@ -80,6 +86,8 @@ public class RJMTestApplication extends Application  {
         m_scroll.setContent(new Group(m_root));
     }
     
+    private List<BuildConfiguration> m_buildConfigurations = new ArrayList<BuildConfiguration>();
+    
     private void AddDrawingToScene() {
     	//TODO Process to code here
     	
@@ -95,11 +103,24 @@ public class RJMTestApplication extends Application  {
     	
     	//STEP 2 - generate Graph
     	
+    	//Add initial object that is not visible to give canvas minimum size (Stops all objects appearing at top left)
+    	Rectangle r = new Rectangle();
+    	r.setX(0);
+    	r.setY(0);
+    	r.setWidth(100);
+    	r.setHeight(100);
+    	//r.setVisible(false); //dosen't work, with this set it was the same as if the rectangle wasn't drawn at all
+    	r.setFill(Color.TRANSPARENT); //used transparent instead
+    	m_root.getChildren().add(r);
     	
+    	double initialposX = 60; 
+    	double initialposY = 60; 
+    	double initialpos_setupWidth = 100; 
+    	double initialpos_setupHeight = 100; 
     	
-    	Circle circle = new Circle(150, Color.web("blue", 1));
-    	m_root.getChildren().add(circle);
-    	
+    	for (int c=0;c<10;c++) {
+    		m_buildConfigurations.add(new BuildConfiguration (m_root,initialposX + (c*initialpos_setupWidth),initialposY + (c*initialpos_setupHeight),this));
+    	}
     	
     	
     	
@@ -188,5 +209,17 @@ public class RJMTestApplication extends Application  {
             }
             return scale;
         }
-    }      
+    }
+
+	public void LockScroll() {
+        m_scroll.setPannable(false);
+	}
+	public void ReleaseScrollLock() {
+        m_scroll.setPannable(true);		
+	}
+	public boolean isScrollLocked() {
+		return !m_scroll.isPannable();
+	}
+    
+    
 }
