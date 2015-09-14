@@ -3,12 +3,21 @@ package com.github.quiram.buildhotspots.visualisation;
 import javafx.scene.paint.Color;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBIntrospector;
+import javax.xml.bind.Unmarshaller;
+
+import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
+import com.github.quiram.buildhotspots.drawingdata.Root;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -31,6 +40,7 @@ import javafx.stage.Stage;
  * Test class added by RJM to add some prototype code
  * which may be used as the structure of the visualisation section
  */
+@SuppressWarnings("restriction")
 public class RJMTestApplication extends Application  {
     private Stage m_primaryStage = null;
     private Scene m_scene = null;
@@ -84,25 +94,7 @@ public class RJMTestApplication extends Application  {
         
         m_scroll.setPannable(true);
         m_scroll.setContent(new Group(m_root));
-    }
-    
-    private List<BuildConfiguration> m_buildConfigurations = new ArrayList<BuildConfiguration>();
-    
-    private void AddDrawingToScene() throws Exception {
-    	//TODO Process to code here
-    	
-    	//sourceXML - XML document containing data from builds
-    	//userXML - XML document with user state (per document)
-    	//combineStageXSL - XSL document to combine the source XML and user XML into masterXML
-    	//masterXML - XML document with the result of the combine stage
-    	
-    	//STEP 1 - combine
-    	
-    	//generateGraphXSL - XSL document to transform masterXML to 
-    	//graphFXML - FXML document to be drawn in scene
-    	
-    	//STEP 2 - generate Graph
-    	
+        
     	//Add initial object that is not visible to give canvas minimum size (Stops all objects appearing at top left)
     	Rectangle r = new Rectangle();
     	r.setX(0);
@@ -113,12 +105,34 @@ public class RJMTestApplication extends Application  {
     	r.setFill(Color.TRANSPARENT); //used transparent instead
     	m_root.getChildren().add(r);
     	
+        
+    }
+    
+    private List<BuildConfiguration> m_buildConfigurations = new ArrayList<BuildConfiguration>();
+    
+    private void AddDrawingToScene() throws Exception {
+
+    	
+    	InputStream input = new BufferedInputStream(ClassLoader.getSystemClassLoader().getResourceAsStream("drawingDataExample001.xml"));
+    	//byte[] buffer = new byte[8192];
+    	//try {
+    	//    for (int length = 0; (length = input.read(buffer)) != -1;) {
+    	//        System.out.write(buffer, 0, length);
+    	//    }
+    	//} finally {
+    	//    input.close();
+    	//}    	
+    	JAXBContext jaxbContext = JAXBContext.newInstance(Root.class);
+    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    	Root docRoot = (Root) jaxbUnmarshaller.unmarshal(input);
+    	
     	double initialposX = 60; 
     	double initialposY = 60; 
     	double initialpos_setupWidth = 100; 
     	double initialpos_setupHeight = 100; 
-    	
-    	for (int c=0;c<10;c++) {
+
+    	int c=0;
+    	for (BuildConfigurationType curBC : docRoot.getBuildConfigurations().getBuildConfiguration()) {
     		BuildConfiguration bc = new BuildConfiguration (
     				(byte) ((c * 10) + 10), //percentage
     				initialposX + (c*initialpos_setupWidth),
@@ -136,6 +150,8 @@ public class RJMTestApplication extends Application  {
     		}
     		
     		m_buildConfigurations.add(bc);
+    		
+    		c++;
     	}
     	
     	

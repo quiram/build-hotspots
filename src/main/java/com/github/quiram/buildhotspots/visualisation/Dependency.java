@@ -8,6 +8,7 @@ import javafx.scene.transform.Rotate;
 /*
  * Class to represent a dependency between two build configurations
  */
+@SuppressWarnings("restriction")
 public class Dependency extends Group {
 	private BuildConfiguration m_src = null; 
 	private BuildConfiguration m_targ = null;

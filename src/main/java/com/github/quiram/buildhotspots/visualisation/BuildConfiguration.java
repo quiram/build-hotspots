@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 /*
  * Class to represent a build configuration. It holds the JavaFX objects used to display this build configuration 
  */
+@SuppressWarnings("restriction")
 public class BuildConfiguration extends Group {
 	private RJMTestApplication m_App = null;
 	private Circle m_circle = null;
