@@ -3,6 +3,8 @@ package com.github.quiram.buildhotspots.visualisation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
+
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.input.ScrollEvent;
@@ -17,14 +19,16 @@ import javafx.scene.input.MouseEvent;
 public class BuildConfiguration extends Group {
 	private RJMTestApplication m_App = null;
 	private Circle m_circle = null;
+	private BuildConfigurationType m_xmlBC = null;
 
-	public BuildConfiguration(byte p_percentage, double p_xPos, double p_yPos, RJMTestApplication p_App) {
+	public BuildConfiguration(BuildConfigurationType p_xmlBC, double p_xPos, double p_yPos, RJMTestApplication p_App) {
 		m_App = p_App;
+		m_xmlBC = p_xmlBC;
 		
 		setLayoutX(p_xPos);
 		setLayoutY(p_yPos);
 		
-		m_circle = new Circle(scalePercentage(p_percentage), Color.web("blue", 1));
+		m_circle = new Circle(scalePercentage(p_xmlBC.getBuildStats().getPercentage()), Color.web("blue", 1));
     	getChildren().add(m_circle);
 		
     	setOnMousePressed(new MousePressedHandler());
@@ -34,7 +38,11 @@ public class BuildConfiguration extends Group {
 
 	}
 	
-	//TODO Scale the value
+	public BuildConfigurationType getXMLType() {
+		return m_xmlBC;
+	}
+	
+	//Scale the value
 	private double scalePercentage(byte p_percentage) {
 		//p_percentage = 0..255
 		double maxRadius = 100;

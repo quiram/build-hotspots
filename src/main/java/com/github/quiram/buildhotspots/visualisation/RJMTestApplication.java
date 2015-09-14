@@ -9,14 +9,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBIntrospector;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
+import com.github.quiram.buildhotspots.drawingdata.DependencyType;
 import com.github.quiram.buildhotspots.drawingdata.Root;
 
 import javafx.animation.AnimationTimer;
@@ -108,20 +112,13 @@ public class RJMTestApplication extends Application  {
         
     }
     
-    private List<BuildConfiguration> m_buildConfigurations = new ArrayList<BuildConfiguration>();
+    private Map<String,BuildConfiguration> m_buildConfigurations = new HashMap<String, BuildConfiguration>();
     
     private void AddDrawingToScene() throws Exception {
 
     	
     	InputStream input = new BufferedInputStream(ClassLoader.getSystemClassLoader().getResourceAsStream("drawingDataExample001.xml"));
-    	//byte[] buffer = new byte[8192];
-    	//try {
-    	//    for (int length = 0; (length = input.read(buffer)) != -1;) {
-    	//        System.out.write(buffer, 0, length);
-    	//    }
-    	//} finally {
-    	//    input.close();
-    	//}    	
+    	
     	JAXBContext jaxbContext = JAXBContext.newInstance(Root.class);
     	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
     	Root docRoot = (Root) jaxbUnmarshaller.unmarshal(input);
@@ -132,26 +129,44 @@ public class RJMTestApplication extends Application  {
     	double initialpos_setupHeight = 100; 
 
     	int c=0;
-    	for (BuildConfigurationType curBC : docRoot.getBuildConfigurations().getBuildConfiguration()) {
+    	for (BuildConfigurationType curBCXML : docRoot.getBuildConfigurations().getBuildConfiguration()) {
     		BuildConfiguration bc = new BuildConfiguration (
-    				(byte) ((c * 10) + 10), //percentage
+    				curBCXML,
     				initialposX + (c*initialpos_setupWidth),
     				initialposY + (c*initialpos_setupHeight),
     				this
     		);
     		m_root.getChildren().add(bc);
     		
-    		if (c>0) {
-    			Dependency d = new Dependency(m_buildConfigurations.get(c-1),bc);
-    			m_buildConfigurations.get(c-1).registerRelatedDependency(d);
-    			bc.registerRelatedDependency(d);
-    			d.Draw();
-    			m_root.getChildren().add(d);
-    		}
-    		
-    		m_buildConfigurations.add(bc);
+    		BuildConfiguration foundBC = m_buildConfigurations.get(curBCXML.getName());
+    		if (foundBC!=null) throw new Exception("Two BuildConfigurations exist in this file with the name " + curBCXML.getName());
+    		m_buildConfigurations.put(curBCXML.getName(),bc);
     		
     		c++;
+    	}
+    	
+    	//Following code for testing
+        //Marshaller m = jaxbContext.createMarshaller();
+        //m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    	////lets us use             m.marshal( curBC.getXMLType(), System.out ); 
+        //End testing code
+    	
+    	//Second pass - go through all configurations and add dependencies
+    	for (BuildConfiguration curBC : m_buildConfigurations.values()) {
+    		if (curBC.getXMLType().getDependencies()!=null) {
+	    		for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
+	    			if (curDepXML.getBuildConfigurationName().equals(curBC.getXMLType().getName())) throw new Exception("Build Configuration " + curBC.getXMLType().getName() + " is dependant on itself");
+	    			
+	    			//look up the other build configuration
+	    			BuildConfiguration foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
+
+	    			Dependency d = new Dependency(foreignBC,curBC);
+	    			foreignBC.registerRelatedDependency(d);
+	    			curBC.registerRelatedDependency(d);
+	    			d.Draw();
+	    			m_root.getChildren().add(d);
+	    		}
+    		}
     	}
     	
     	

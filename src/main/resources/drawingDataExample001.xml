@@ -9,22 +9,22 @@
       </BuildConfiguration>
       <BuildConfiguration>
          <Name>B</Name>
-         <Dependancies>
-            <Dependancy>
+         <Dependencies>
+            <Dependency>
                <BuildConfigurationName>A</BuildConfigurationName>
-            </Dependancy>
-         </Dependancies>
+            </Dependency>
+         </Dependencies>
          <BuildStats>
             <Percentage>50</Percentage>
          </BuildStats>
       </BuildConfiguration>
       <BuildConfiguration>
          <Name>C</Name>
-         <Dependancies>
-            <Dependancy>
+         <Dependencies>
+            <Dependency>
                <BuildConfigurationName>A</BuildConfigurationName>
-            </Dependancy>
-         </Dependancies>
+            </Dependency>
+         </Dependencies>
          <BuildStats>
             <Percentage>25</Percentage>
          </BuildStats>
