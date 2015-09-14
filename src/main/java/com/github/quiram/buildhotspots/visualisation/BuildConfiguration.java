@@ -1,5 +1,8 @@
 package com.github.quiram.buildhotspots.visualisation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.input.ScrollEvent;
@@ -8,28 +11,33 @@ import javafx.scene.shape.Circle;
 import javafx.scene.input.MouseEvent;
 
 /*
- * Class to represent a build configuration. It holds the JavaFX objects used to display this build confiugration 
+ * Class to represent a build configuration. It holds the JavaFX objects used to display this build configuration 
  */
-public class BuildConfiguration {
-	Group m_root = null;
-	RJMTestApplication m_App = null;
+public class BuildConfiguration extends Group {
+	private RJMTestApplication m_App = null;
+	private Circle m_circle = null;
 
-	public BuildConfiguration(Group p_container, double p_xPos, double p_yPos, RJMTestApplication p_App) {
+	public BuildConfiguration(byte p_percentage, double p_xPos, double p_yPos, RJMTestApplication p_App) {
 		m_App = p_App;
 		
-		m_root = new Group();
-		m_root.setLayoutX(p_xPos);
-		m_root.setLayoutY(p_yPos);
+		setLayoutX(p_xPos);
+		setLayoutY(p_yPos);
 		
-    	Circle circle = new Circle(50, Color.web("blue", 1));
-    	m_root.getChildren().add(circle);
+		m_circle = new Circle(scalePercentage(p_percentage), Color.web("blue", 1));
+    	getChildren().add(m_circle);
 		
-    	m_root.setOnMousePressed(new MousePressedHandler());
-    	m_root.setOnMouseDragged(new MouseDraggedHandler());
-    	m_root.setOnMouseReleased(new MouseDragReleasedHandler());
+    	setOnMousePressed(new MousePressedHandler());
+    	setOnMouseDragged(new MouseDraggedHandler());
+    	setOnMouseReleased(new MouseDragReleasedHandler());
     	
-		p_container.getChildren().add(m_root);
-		
+
+	}
+	
+	//TODO Scale the value
+	private double scalePercentage(byte p_percentage) {
+		//p_percentage = 0..255
+		double maxRadius = 100;
+		return p_percentage * (maxRadius / 255);
 	}
 	
 	private double m_mouseDownX = -1;
@@ -45,8 +53,8 @@ public class BuildConfiguration {
 			}
 			m_mouseDownX = arg0.getSceneX();
 			m_mouseDownY = arg0.getSceneY();
-			m_origLayoutX = m_root.getLayoutX();
-			m_origLayoutY = m_root.getLayoutY();
+			m_origLayoutX = getLayoutX();
+			m_origLayoutY = getLayoutY();
 			m_App.LockScroll();
 		}
     }
@@ -55,10 +63,17 @@ public class BuildConfiguration {
 		public void handle(MouseEvent arg0) {
 			double offsetX = arg0.getSceneX() - m_mouseDownX;
 			double offsetY = arg0.getSceneY() - m_mouseDownY;
-			offsetX /= m_root.getParent().getScaleX();
-			offsetY /= m_root.getParent().getScaleY();
-			m_root.setLayoutX(m_origLayoutX + offsetX);
-			m_root.setLayoutY(m_origLayoutY + offsetY);
+			offsetX /= getParent().getScaleX();
+			offsetY /= getParent().getScaleY();
+			setLayoutX(m_origLayoutX + offsetX);
+			setLayoutY(m_origLayoutY + offsetY);
+			
+			try {
+				Draw();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
     }
     private class MouseDragReleasedHandler implements EventHandler<MouseEvent> {
@@ -70,7 +85,23 @@ public class BuildConfiguration {
 			m_origLayoutY = -1;
 			m_App.ReleaseScrollLock();
 		}
-    }    
+    }
+    
+    /*
+     * Keep a list of all related dependencies so that this object can redraw them when it is moved
+     */
+    private List<Dependency> m_relatedDependencies = new ArrayList<Dependency>();
+	public void registerRelatedDependency(Dependency d) {
+		m_relatedDependencies.add(d);
+	}    
 
-	
+	public void Draw() throws Exception {
+		for (Dependency d : m_relatedDependencies) {
+			d.Draw();
+		}
+	}
+
+	public double getRadius() {
+		return m_circle.getRadius();
+	}
 }

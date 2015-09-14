@@ -88,7 +88,7 @@ public class RJMTestApplication extends Application  {
     
     private List<BuildConfiguration> m_buildConfigurations = new ArrayList<BuildConfiguration>();
     
-    private void AddDrawingToScene() {
+    private void AddDrawingToScene() throws Exception {
     	//TODO Process to code here
     	
     	//sourceXML - XML document containing data from builds
@@ -119,7 +119,23 @@ public class RJMTestApplication extends Application  {
     	double initialpos_setupHeight = 100; 
     	
     	for (int c=0;c<10;c++) {
-    		m_buildConfigurations.add(new BuildConfiguration (m_root,initialposX + (c*initialpos_setupWidth),initialposY + (c*initialpos_setupHeight),this));
+    		BuildConfiguration bc = new BuildConfiguration (
+    				(byte) ((c * 10) + 10), //percentage
+    				initialposX + (c*initialpos_setupWidth),
+    				initialposY + (c*initialpos_setupHeight),
+    				this
+    		);
+    		m_root.getChildren().add(bc);
+    		
+    		if (c>0) {
+    			Dependency d = new Dependency(m_buildConfigurations.get(c-1),bc);
+    			m_buildConfigurations.get(c-1).registerRelatedDependency(d);
+    			bc.registerRelatedDependency(d);
+    			d.Draw();
+    			m_root.getChildren().add(d);
+    		}
+    		
+    		m_buildConfigurations.add(bc);
     	}
     	
     	
