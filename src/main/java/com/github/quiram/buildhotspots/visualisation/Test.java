@@ -20,6 +20,7 @@ import javafx.stage.Stage;
  * 
  */
 
+@SuppressWarnings("restriction")
 public class Test extends Application {
 		@Override
 		public void start(Stage primaryStage) {
