@@ -71,7 +71,7 @@ public class Dependency extends Group {
 		} else if (w!=0) {
 			ang = Math.atan(h/w);
 			ang += (Math.PI / 2);
-		};
+		}
 		return ang;
 	}
 	
@@ -84,8 +84,8 @@ public class Dependency extends Group {
 				p_origin.getY() - (p_amount * Math.cos(p_direction))
 		);
 	}
-	
-	public void Draw() throws Exception {
+
+	public void Draw() {
 		
 		Point2D sourceCentre = new Point2D(m_src.getLayoutX(),m_src.getLayoutY());
 		Point2D targetCentre = new Point2D(m_targ.getLayoutX(),m_targ.getLayoutY());
@@ -104,7 +104,7 @@ public class Dependency extends Group {
 			m_srcArrow.setTranslateX(actualStart.getX());
 			m_srcArrow.setTranslateY(actualStart.getY());
 			m_srcArrow.setAngle((ang* (180/Math.PI))+180);
-		};
+		}
 		m_targArrow.setTranslateX(actualEnd.getX());
 		m_targArrow.setTranslateY(actualEnd.getY());
 		m_targArrow.setAngle(ang * (180/Math.PI));

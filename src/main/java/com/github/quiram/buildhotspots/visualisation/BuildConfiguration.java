@@ -1,35 +1,33 @@
 package com.github.quiram.buildhotspots.visualisation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
-
 import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.input.MouseEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Class to represent a build configuration. It holds the JavaFX objects used to display this build configuration 
  */
 @SuppressWarnings("restriction")
 public class BuildConfiguration extends Group {
-	private RJMTestApplication m_App = null;
+	private BuildHotspotsApplication m_App = null;
 	private Circle m_circle = null;
 	private BuildConfigurationType m_xmlBC = null;
 
-	public BuildConfiguration(BuildConfigurationType p_xmlBC, double p_xPos, double p_yPos, RJMTestApplication p_App) {
+	public BuildConfiguration(BuildConfigurationType p_xmlBC, double p_xPos, double p_yPos, BuildHotspotsApplication p_App) {
 		m_App = p_App;
 		m_xmlBC = p_xmlBC;
 		
 		setLayoutX(p_xPos);
 		setLayoutY(p_yPos);
-		
-		m_circle = new Circle(scalePercentage(p_xmlBC.getBuildStats().getPercentage()), Color.web("blue", 1));
-    	getChildren().add(m_circle);
+
+		m_circle = new Circle(50, Color.web("blue", 1));
+		getChildren().add(m_circle);
 		
     	setOnMousePressed(new MousePressedHandler());
     	setOnMouseDragged(new MouseDraggedHandler());
