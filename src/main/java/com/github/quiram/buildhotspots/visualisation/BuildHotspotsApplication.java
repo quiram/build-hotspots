@@ -148,7 +148,7 @@ public class BuildHotspotsApplication extends Application {
                     //look up the other build configuration
 	    			BuildConfiguration foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
 
-                    Dependency d = new Dependency(curBC, foreignBC);
+                    Dependency d = new Dependency(foreignBC, curBC);
                     foreignBC.registerRelatedDependency(d);
 	    			curBC.registerRelatedDependency(d);
 	    			d.Draw();
