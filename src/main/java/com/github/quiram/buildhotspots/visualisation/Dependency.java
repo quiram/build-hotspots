@@ -35,6 +35,10 @@ public class Dependency extends Group {
         return origin;
     }
 
+    public BuildConfiguration getTarget() {
+        return target;
+    }
+
     class ArrowHead extends Group {
 		Line m_l1 = new Line();
 		Line m_l2 = new Line();

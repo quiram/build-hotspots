@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Collections.unmodifiableList;
+
 /*
  * Class to represent a build configuration. It holds the JavaFX objects used to display this build configuration 
  */
@@ -69,6 +71,17 @@ public class BuildConfiguration extends Group {
             }
             return depth;
         }).max(Comparator.<Integer>naturalOrder()).orElse(0);
+    }
+
+    public List<Dependency> getDependencies() {
+        return unmodifiableList(m_relatedDependencies);
+    }
+
+    public Dependency addDependency(BuildConfiguration dependency) {
+        final Dependency dependencyLink = new Dependency(dependency, this);
+        m_relatedDependencies.add(dependencyLink);
+        dependency.registerRelatedDependency(dependencyLink);
+        return dependencyLink;
     }
 
     private class MousePressedHandler implements EventHandler<MouseEvent> {

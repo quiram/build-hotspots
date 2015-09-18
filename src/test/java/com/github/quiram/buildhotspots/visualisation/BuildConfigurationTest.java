@@ -3,6 +3,8 @@ package com.github.quiram.buildhotspots.visualisation;
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class BuildConfigurationTest {
@@ -17,7 +19,7 @@ public class BuildConfigurationTest {
         final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
         final BuildConfiguration dependentConfiguration = getBuildConfiguration();
 
-        connectBuildConfigurations(mainBuildConfiguration, dependentConfiguration);
+        dependentConfiguration.addDependency(mainBuildConfiguration);
 
         assertEquals(1, dependentConfiguration.getDepth());
     }
@@ -28,8 +30,8 @@ public class BuildConfigurationTest {
         final BuildConfiguration mainBuildConfiguration2 = getBuildConfiguration();
         final BuildConfiguration dependentConfiguration = getBuildConfiguration();
 
-        connectBuildConfigurations(mainBuildConfiguration, dependentConfiguration);
-        connectBuildConfigurations(mainBuildConfiguration2, dependentConfiguration);
+        dependentConfiguration.addDependency(mainBuildConfiguration);
+        dependentConfiguration.addDependency(mainBuildConfiguration2);
 
         assertEquals(1, dependentConfiguration.getDepth());
     }
@@ -40,8 +42,8 @@ public class BuildConfigurationTest {
         final BuildConfiguration midBuildConfiguration = getBuildConfiguration();
         final BuildConfiguration dependentConfiguration = getBuildConfiguration();
 
-        connectBuildConfigurations(mainBuildConfiguration, midBuildConfiguration);
-        connectBuildConfigurations(midBuildConfiguration, dependentConfiguration);
+        midBuildConfiguration.addDependency(mainBuildConfiguration);
+        dependentConfiguration.addDependency(midBuildConfiguration);
 
         assertEquals(2, dependentConfiguration.getDepth());
     }
@@ -62,16 +64,34 @@ public class BuildConfigurationTest {
         final BuildConfiguration C = getBuildConfiguration();
         final BuildConfiguration D = getBuildConfiguration();
 
-        connectBuildConfigurations(A, C);
-        connectBuildConfigurations(B, D);
-        connectBuildConfigurations(D, C);
+        C.addDependency(A);
+        D.addDependency(B);
+        C.addDependency(D);
 
         assertEquals(2, C.getDepth());
     }
 
-    private void connectBuildConfigurations(BuildConfiguration mainBuildConfiguration, BuildConfiguration dependentConfiguration) {
-        final Dependency dependency = new Dependency(mainBuildConfiguration, dependentConfiguration);
-        mainBuildConfiguration.registerRelatedDependency(dependency);
-        dependentConfiguration.registerRelatedDependency(dependency);
+    @Test(expected = UnsupportedOperationException.class)
+    public void dependenciesCannotBeChangedOutsideOfBuildConfiguration() {
+        final BuildConfiguration b = getBuildConfiguration();
+        final List<Dependency> dependencies = b.getDependencies();
+        dependencies.add(null);
     }
+
+    @Test
+    public void addDependency() {
+        final BuildConfiguration b = getBuildConfiguration();
+        final BuildConfiguration a = getBuildConfiguration();
+        Dependency dependency = b.addDependency(a);
+
+        List<Dependency> dependencies = b.getDependencies();
+        assertEquals(1, dependencies.size());
+
+        assertEquals(a, dependency.getOrigin());
+        assertEquals(b, dependency.getTarget());
+
+        dependencies = a.getDependencies();
+        assertEquals(1, dependencies.size());
+    }
+
 }
