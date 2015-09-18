@@ -10,29 +10,32 @@ import javafx.scene.transform.Rotate;
  */
 @SuppressWarnings("restriction")
 public class Dependency extends Group {
-	private BuildConfiguration m_src = null; 
-	private BuildConfiguration m_targ = null;
+    private BuildConfiguration target = null;
+    private BuildConfiguration origin = null;
 
 	Line m_l = null;
 	ArrowHead m_srcArrow = null;
 	ArrowHead m_targArrow = null;
-	
 
-	public Dependency(BuildConfiguration p_src, BuildConfiguration p_targ) {
-		m_src = p_src;
-		m_targ = p_targ;
-		
-		m_l = new Line();
+
+    public Dependency(BuildConfiguration origin, BuildConfiguration target) {
+        this.target = target;
+        this.origin = origin;
+
+        m_l = new Line();
 		//m_l.setStyle(m_data.getStyle());
 		
 		getChildren().add(m_l);
 
 		m_targArrow = new ArrowHead();
 		getChildren().add(m_targArrow);
-		
 	}
-	
-	class ArrowHead extends Group {
+
+    public BuildConfiguration getOrigin() {
+        return origin;
+    }
+
+    class ArrowHead extends Group {
 		Line m_l1 = new Line();
 		Line m_l2 = new Line();
 		Rotate m_r = new Rotate(0, 0, 0);
@@ -86,15 +89,15 @@ public class Dependency extends Group {
 	}
 
 	public void Draw() {
-		
-		Point2D sourceCentre = new Point2D(m_src.getLayoutX(),m_src.getLayoutY());
-		Point2D targetCentre = new Point2D(m_targ.getLayoutX(),m_targ.getLayoutY());
-		
-		double ang = caculateAngle(sourceCentre, targetCentre);
-		Point2D actualStart = adjustPoint(sourceCentre,ang,m_src.getRadius());
-		Point2D actualEnd = adjustPoint(targetCentre,ang + Math.PI,m_targ.getRadius());
-		
-		//Just an arrow from the source to the target
+
+        Point2D sourceCentre = new Point2D(target.getLayoutX(), target.getLayoutY());
+        Point2D targetCentre = new Point2D(origin.getLayoutX(), origin.getLayoutY());
+
+        double ang = caculateAngle(sourceCentre, targetCentre);
+        Point2D actualStart = adjustPoint(sourceCentre, ang, target.getRadius());
+        Point2D actualEnd = adjustPoint(targetCentre, ang + Math.PI, origin.getRadius());
+
+        //Just an arrow from the source to the target
 		m_l.setStartX(actualStart.getX());
 		m_l.setStartY(actualStart.getY());
 		m_l.setEndX(actualEnd.getX());
@@ -108,6 +111,5 @@ public class Dependency extends Group {
 		m_targArrow.setTranslateX(actualEnd.getX());
 		m_targArrow.setTranslateY(actualEnd.getY());
 		m_targArrow.setAngle(ang * (180/Math.PI));
-		
-	}		
+    }
 }

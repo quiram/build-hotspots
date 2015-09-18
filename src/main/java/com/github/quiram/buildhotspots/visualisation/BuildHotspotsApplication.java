@@ -8,7 +8,6 @@ import com.github.quiram.buildhotspots.drawingdata.Root;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -41,7 +40,6 @@ import java.util.Map;
 @SuppressWarnings("restriction")
 public class BuildHotspotsApplication extends Application {
     private Stage m_primaryStage = null;
-    private Scene m_scene = null;
     final Group m_root = new Group();
 	ScrollPane m_scroll = null;
 
@@ -49,26 +47,24 @@ public class BuildHotspotsApplication extends Application {
     	HBox toolbar = new HBox();
     	
     	Button savePNG = new Button("Save PNG");
-    	savePNG.setOnAction(new EventHandler<ActionEvent>() {
-    	    @Override public void handle(ActionEvent e) {
-				//Canvas canvas = new Canvas(root.getBoundsInLocal().getWidth(),root.getBoundsInLocal().getHeight());
-				//GraphicsContext gc = canvas.getGraphicsContext2D();
-				WritableImage image = new WritableImage(
-						(int)m_root.getBoundsInParent().getWidth(),
-						(int)m_root.getBoundsInParent().getHeight()
-				);
-				m_root.snapshot(null, image);
-				
-				BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-				try {
-					ImageIO.write(bImage, "png", new File("build-hotspots.png"));
-				} catch (IOException e1) {
-					e1.printStackTrace();					
-				}
+        savePNG.setOnAction(e -> {
+            //Canvas canvas = new Canvas(root.getBoundsInLocal().getWidth(),root.getBoundsInLocal().getHeight());
+            //GraphicsContext gc = canvas.getGraphicsContext2D();
+            WritableImage image = new WritableImage(
+                    (int) m_root.getBoundsInParent().getWidth(),
+                    (int) m_root.getBoundsInParent().getHeight()
+            );
+            m_root.snapshot(null, image);
 
-    	    }
-    	});
-    	toolbar.getChildren().add(savePNG);
+            BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+            try {
+                ImageIO.write(bImage, "png", new File("build-hotspots.png"));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+        });
+        toolbar.getChildren().add(savePNG);
 
     	return toolbar;
     }	
@@ -78,10 +74,10 @@ public class BuildHotspotsApplication extends Application {
     	BorderPane bp = new BorderPane();
     	bp.setTop(setupToolbar());
     	bp.setCenter(m_scroll);
-    	
-    	m_scene = new Scene(bp);
-    	
-    	m_scroll.setPrefSize(500, 300);
+
+        Scene m_scene = new Scene(bp);
+
+        m_scroll.setPrefSize(500, 300);
         m_scroll.prefViewportWidthProperty().bind(m_scene.widthProperty());
         m_scroll.prefViewportHeightProperty().bind(m_scene.widthProperty());        
 
@@ -102,8 +98,8 @@ public class BuildHotspotsApplication extends Application {
     	r.setFill(Color.TRANSPARENT); //used transparent instead
     	m_root.getChildren().add(r);
     }
-    
-    private Map<String,BuildConfiguration> m_buildConfigurations = new HashMap<String, BuildConfiguration>();
+
+    private Map<String, BuildConfiguration> m_buildConfigurations = new HashMap<>();
 
     private void AddDrawingToScene(String jenkinsBaseUrl) {
         createScene();
@@ -152,17 +148,27 @@ public class BuildHotspotsApplication extends Application {
                     //look up the other build configuration
 	    			BuildConfiguration foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
 
-	    			Dependency d = new Dependency(foreignBC,curBC);
-	    			foreignBC.registerRelatedDependency(d);
+                    Dependency d = new Dependency(curBC, foreignBC);
+                    foreignBC.registerRelatedDependency(d);
 	    			curBC.registerRelatedDependency(d);
 	    			d.Draw();
 	    			m_root.getChildren().add(d);
 	    		}
     		}
     	}
-    	
-    	
-    	
+
+        //Third pass - reposition builds according to their dependency depth
+        final int MAX_DEPTH = 100;
+        int[] depthCounter = new int[MAX_DEPTH];
+
+        m_buildConfigurations.values().forEach(b -> {
+            final int depth = b.getDepth();
+            double x = initialposX + depth * initialpos_setupWidth;
+            double y = initialposY + depthCounter[depth] * initialpos_setupHeight;
+            b.setPosition(x, y);
+            b.Draw();
+            depthCounter[depth]++;
+        });
     }
 
     private void getJenkinsClient() {
@@ -208,8 +214,8 @@ public class BuildHotspotsApplication extends Application {
 			@Override
 			public void handle(long arg0) {
 				//System.out.println("now=" + arg0 + ":" + m_lastRun);
-				if ((arg0-m_lastRun)<1 * 100000000) return;
-				m_lastRun = arg0;
+                if ((arg0 - m_lastRun) < 100000000) return;
+                m_lastRun = arg0;
 				try {
 					m_runs++;
 					m_root.autosize();
