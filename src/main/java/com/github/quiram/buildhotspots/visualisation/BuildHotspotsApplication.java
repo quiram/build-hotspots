@@ -165,6 +165,12 @@ public class BuildHotspotsApplication extends Application {
             final int depth = b.getDepth();
             double x = initialposX + depth * initialpos_setupWidth;
             double y = initialposY + depthCounter[depth] * initialpos_setupHeight;
+
+            // purposely missalign columns for better visibility
+            if (depth % 2 == 1) {
+                y += initialpos_setupHeight / 2;
+            }
+
             b.setPosition(x, y);
             b.Draw();
             depthCounter[depth]++;

@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,6 +30,9 @@ public class BuildConfiguration extends Group {
 
         m_circle = new Circle(30, Color.web("blue", 1));
         getChildren().add(m_circle);
+
+        Text text = new Text(m_xmlBC.getName());
+        getChildren().add(text);
 
         setOnMousePressed(new MousePressedHandler());
         setOnMouseDragged(new MouseDraggedHandler());
