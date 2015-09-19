@@ -49,7 +49,7 @@ public class JenkinsClient implements CiClient {
 
     @Override
     public List<String> getDependenciesFor(String jobName) {
-        final GetBuildResponse response = requestData(GetBuildResponse.class, "job", jobName);
+        final GetBuildResponse response = requestData(GetBuildResponse.class, "", "job", jobName);
         final List<UpstreamProject> upstreamProjects = response.getUpstreamProjects();
         return upstreamProjects.stream().map(UpstreamProject::getName).collect(toList());
     }

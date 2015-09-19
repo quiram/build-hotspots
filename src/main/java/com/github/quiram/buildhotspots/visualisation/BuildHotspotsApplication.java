@@ -1,53 +1,45 @@
 package com.github.quiram.buildhotspots.visualisation;
 
-import javafx.scene.paint.Color;
-
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBIntrospector;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
+import com.github.quiram.buildhotspots.DrawingBuilder;
+import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
 import com.github.quiram.buildhotspots.drawingdata.DependencyType;
 import com.github.quiram.buildhotspots.drawingdata.Root;
-
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * Test class added by RJM to add some prototype code
  * which may be used as the structure of the visualisation section
  */
 @SuppressWarnings("restriction")
-public class RJMTestApplication extends Application  {
+public class BuildHotspotsApplication extends Application {
     private Stage m_primaryStage = null;
-    private Scene m_scene = null;
     final Group m_root = new Group();
 	ScrollPane m_scroll = null;
 
@@ -55,26 +47,24 @@ public class RJMTestApplication extends Application  {
     	HBox toolbar = new HBox();
     	
     	Button savePNG = new Button("Save PNG");
-    	savePNG.setOnAction(new EventHandler<ActionEvent>() {
-    	    @Override public void handle(ActionEvent e) {
-				//Canvas canvas = new Canvas(root.getBoundsInLocal().getWidth(),root.getBoundsInLocal().getHeight());
-				//GraphicsContext gc = canvas.getGraphicsContext2D();
-				WritableImage image = new WritableImage(
-						(int)m_root.getBoundsInParent().getWidth(),
-						(int)m_root.getBoundsInParent().getHeight()
-				);
-				m_root.snapshot(null, image);
-				
-				BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-				try {
-					ImageIO.write(bImage, "png", new File("build-hotspots.png"));
-				} catch (IOException e1) {
-					e1.printStackTrace();					
-				}
+        savePNG.setOnAction(e -> {
+            //Canvas canvas = new Canvas(root.getBoundsInLocal().getWidth(),root.getBoundsInLocal().getHeight());
+            //GraphicsContext gc = canvas.getGraphicsContext2D();
+            WritableImage image = new WritableImage(
+                    (int) m_root.getBoundsInParent().getWidth(),
+                    (int) m_root.getBoundsInParent().getHeight()
+            );
+            m_root.snapshot(null, image);
 
-    	    }
-    	});
-    	toolbar.getChildren().add(savePNG);
+            BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+            try {
+                ImageIO.write(bImage, "png", new File("build-hotspots.png"));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+        });
+        toolbar.getChildren().add(savePNG);
 
     	return toolbar;
     }	
@@ -84,16 +74,15 @@ public class RJMTestApplication extends Application  {
     	BorderPane bp = new BorderPane();
     	bp.setTop(setupToolbar());
     	bp.setCenter(m_scroll);
-    	
-    	m_scene = new Scene(bp);
-    	
-    	m_scroll.setPrefSize(500, 300);
+
+        Scene m_scene = new Scene(bp);
+
+        m_scroll.setPrefSize(500, 300);
         m_scroll.prefViewportWidthProperty().bind(m_scene.widthProperty());
         m_scroll.prefViewportHeightProperty().bind(m_scene.widthProperty());        
 
     	m_scroll.addEventFilter(ScrollEvent.ANY, new ZoomHandler());        
     	
-		m_primaryStage.setTitle("RJMTestApplication build-hotspots");
 		m_primaryStage.setScene(m_scene);
         
         m_scroll.setPannable(true);
@@ -108,23 +97,20 @@ public class RJMTestApplication extends Application  {
     	//r.setVisible(false); //dosen't work, with this set it was the same as if the rectangle wasn't drawn at all
     	r.setFill(Color.TRANSPARENT); //used transparent instead
     	m_root.getChildren().add(r);
-    	
-        
     }
-    
-    private Map<String,BuildConfiguration> m_buildConfigurations = new HashMap<String, BuildConfiguration>();
-    
-    private void AddDrawingToScene() throws Exception {
 
-    	
-    	InputStream input = new BufferedInputStream(ClassLoader.getSystemClassLoader().getResourceAsStream("drawingDataExample001.xml"));
-    	
-    	JAXBContext jaxbContext = JAXBContext.newInstance(Root.class);
-    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-    	Root docRoot = (Root) jaxbUnmarshaller.unmarshal(input);
-    	
-    	double initialposX = 60; 
-    	double initialposY = 60; 
+    private Map<String, BuildConfiguration> m_buildConfigurations = new HashMap<>();
+
+    private void AddDrawingToScene(String jenkinsBaseUrl) {
+        createScene();
+
+        JenkinsClient jenkinsClient = new JenkinsClient(jenkinsBaseUrl);
+
+        DrawingBuilder drawingBuilder = new DrawingBuilder(jenkinsClient);
+        final Root docRoot = drawingBuilder.build();
+
+        double initialposX = 60;
+        double initialposY = 60;
     	double initialpos_setupWidth = 100; 
     	double initialpos_setupHeight = 100; 
 
@@ -139,8 +125,9 @@ public class RJMTestApplication extends Application  {
     		m_root.getChildren().add(bc);
     		
     		BuildConfiguration foundBC = m_buildConfigurations.get(curBCXML.getName());
-    		if (foundBC!=null) throw new Exception("Two BuildConfigurations exist in this file with the name " + curBCXML.getName());
-    		m_buildConfigurations.put(curBCXML.getName(),bc);
+            if (foundBC != null)
+                throw new RuntimeException("Two BuildConfigurations exist in this file with the name " + curBCXML.getName());
+            m_buildConfigurations.put(curBCXML.getName(),bc);
     		
     		c++;
     	}
@@ -155,31 +142,73 @@ public class RJMTestApplication extends Application  {
     	for (BuildConfiguration curBC : m_buildConfigurations.values()) {
     		if (curBC.getXMLType().getDependencies()!=null) {
 	    		for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
-	    			if (curDepXML.getBuildConfigurationName().equals(curBC.getXMLType().getName())) throw new Exception("Build Configuration " + curBC.getXMLType().getName() + " is dependant on itself");
-	    			
-	    			//look up the other build configuration
+                    if (curDepXML.getBuildConfigurationName().equals(curBC.getXMLType().getName()))
+                        throw new RuntimeException("Build Configuration " + curBC.getXMLType().getName() + " is dependant on itself");
+
+                    //look up the other build configuration
 	    			BuildConfiguration foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
 
-	    			Dependency d = new Dependency(foreignBC,curBC);
-	    			foreignBC.registerRelatedDependency(d);
-	    			curBC.registerRelatedDependency(d);
-	    			d.Draw();
+                    curBC.addDependency(foreignBC);
+
+                    Dependency d = curBC.addDependency(foreignBC);
+                    d.Draw();
 	    			m_root.getChildren().add(d);
 	    		}
     		}
     	}
-    	
-    	
-    	
+
+        //Third pass - reposition builds according to their dependency depth
+        final int MAX_DEPTH = 100;
+        int[] depthCounter = new int[MAX_DEPTH];
+
+        m_buildConfigurations.values().forEach(b -> {
+            final int depth = b.getDepth();
+            double x = initialposX + depth * initialpos_setupWidth;
+            double y = initialposY + depthCounter[depth] * initialpos_setupHeight;
+
+            // purposely missalign columns for better visibility
+            if (depth % 2 == 1) {
+                y += initialpos_setupHeight / 2;
+            }
+
+            b.setPosition(x, y);
+            b.Draw();
+            depthCounter[depth]++;
+        });
     }
-    
-	@Override
-	public void start(final Stage primaryStage) throws Exception {
+
+    private void getJenkinsClient() {
+        m_primaryStage.setTitle("Build Hotspots");
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+        Scene scene = new Scene(grid, 300, 275);
+        m_primaryStage.setScene(scene);
+
+        Label label = new Label("Start by pointing at your Jenkins instance:");
+        TextField textField = new TextField("url");
+
+        Button btn = new Button();
+        btn.setText("Show me hotspots!");
+        btn.setOnAction(event -> AddDrawingToScene(textField.getText()));
+
+        grid.add(label, 0, 0);
+        grid.add(textField, 0, 1);
+        grid.add(btn, 0, 2);
+
+        m_primaryStage.show();
+    }
+
+    @Override
+    public void start(final Stage primaryStage) throws Exception {
 		m_primaryStage = primaryStage;
 		createScene();
 
-		AddDrawingToScene();
-		
+        getJenkinsClient();
+
         m_root.autosize();
         
 		primaryStage.show();
@@ -191,8 +220,8 @@ public class RJMTestApplication extends Application  {
 			@Override
 			public void handle(long arg0) {
 				//System.out.println("now=" + arg0 + ":" + m_lastRun);
-				if ((arg0-m_lastRun)<1 * 100000000) return;
-				m_lastRun = arg0;
+                if ((arg0 - m_lastRun) < 100000000) return;
+                m_lastRun = arg0;
 				try {
 					m_runs++;
 					m_root.autosize();
@@ -215,9 +244,9 @@ public class RJMTestApplication extends Application  {
 	}
 
     public static void main(String[] args) {
-		System.out.println("Start RJMTestApplication");
+        System.out.println("Start BuildHotspotsApplication");
         launch(args);
-		System.out.println("End RJMTestApplication");
+        System.out.println("End BuildHotspotsApplication");
     }
 	
     private static final double MAX_SCALE = 5.5d;

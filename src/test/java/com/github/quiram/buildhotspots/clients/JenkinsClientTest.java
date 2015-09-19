@@ -116,7 +116,7 @@ public class JenkinsClientTest {
     }
 
     private void stubReturnsListOfDependenciesFor(String buildName) {
-        stubFor(get(urlEqualTo(format("/%s/api/json", buildName)))
+        stubFor(get(urlEqualTo(format("/job/%s/api/json", buildName)))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
