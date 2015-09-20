@@ -19,11 +19,11 @@ import static java.util.Collections.unmodifiableList;
  */
 @SuppressWarnings("restriction")
 public class BuildConfiguration extends Group {
-    private BuildHotspotsApplication m_App = null;
+    private BuildHotspotsApplicationBase m_App = null;
     private Circle m_circle = null;
     private BuildConfigurationType m_xmlBC = null;
 
-    public BuildConfiguration(BuildConfigurationType p_xmlBC, double p_xPos, double p_yPos, BuildHotspotsApplication p_App) {
+    public BuildConfiguration(BuildConfigurationType p_xmlBC, double p_xPos, double p_yPos, BuildHotspotsApplicationBase p_App) {
         m_App = p_App;
         m_xmlBC = p_xmlBC;
 
