@@ -37,9 +37,9 @@ import java.util.Map;
  */
 @SuppressWarnings("restriction")
 public abstract class BuildHotspotsApplicationBase extends Application {
-    private Stage m_primaryStage = null;
-    final Group m_root = new Group();
-    ScrollPane m_scroll = null;
+    protected Stage m_primaryStage = null;
+    private final Group m_root = new Group();
+    private ScrollPane m_scroll = null;
 
     private HBox setupToolbar() {
         HBox toolbar = new HBox();
@@ -100,10 +100,8 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 
     private Map<String, BuildConfiguration> m_buildConfigurations = new HashMap<>();
 
-    private void AddDrawingToScene(String jenkinsBaseUrl) {
+    protected void AddDrawingToScene(Root p_docRoot) {
         createScene();
-
-        final Root docRoot = getRootDocument(jenkinsBaseUrl);
 
         double initialposX = 60;
         double initialposY = 60;
@@ -111,7 +109,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         double initialpos_setupHeight = 100;
 
         int c = 0;
-        for (BuildConfigurationType curBCXML : docRoot.getBuildConfigurations().getBuildConfiguration()) {
+        for (BuildConfigurationType curBCXML : p_docRoot.getBuildConfigurations().getBuildConfiguration()) {
             BuildConfiguration bc = new BuildConfiguration(
                     curBCXML,
                     initialposX + (c * initialpos_setupWidth),
@@ -173,31 +171,12 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         });
     }
 
-    abstract protected Root getRootDocument(String source);
+    /*
+     * Allow use to have a generic selection scene - different for file and jenkins
+     */
+    abstract protected void showDrawingSelectionScene();
 
     private void getJenkinsClient() {
-        m_primaryStage.setTitle("Build Hotspots");
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
-
-        Scene scene = new Scene(grid, 300, 275);
-        m_primaryStage.setScene(scene);
-
-        Label label = new Label("Start by pointing at your Jenkins instance:");
-        TextField textField = new TextField("url");
-
-        Button btn = new Button();
-        btn.setText("Show me hotspots!");
-        btn.setOnAction(event -> AddDrawingToScene(textField.getText()));
-
-        grid.add(label, 0, 0);
-        grid.add(textField, 0, 1);
-        grid.add(btn, 0, 2);
-
-        m_primaryStage.show();
     }
 
     @Override
@@ -205,7 +184,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         m_primaryStage = primaryStage;
         createScene();
 
-        getJenkinsClient();
+        showDrawingSelectionScene();
 
         m_root.autosize();
 
