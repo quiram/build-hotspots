@@ -176,9 +176,6 @@ public abstract class BuildHotspotsApplicationBase extends Application {
      */
     abstract protected void showDrawingSelectionScene();
 
-    private void getJenkinsClient() {
-    }
-
     @Override
     public void start(final Stage primaryStage) throws Exception {
         m_primaryStage = primaryStage;
