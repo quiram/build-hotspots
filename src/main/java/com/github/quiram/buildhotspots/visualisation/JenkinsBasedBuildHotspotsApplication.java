@@ -28,7 +28,7 @@ public class JenkinsBasedBuildHotspotsApplication extends BuildHotspotsApplicati
     }
 
 	@Override
-	protected void showDrawingSelectionScene() {
+	protected void showDrawingSelectionScene() throws Exception {
         m_primaryStage.setTitle("Build Hotspots - Draw from Jenkins");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);

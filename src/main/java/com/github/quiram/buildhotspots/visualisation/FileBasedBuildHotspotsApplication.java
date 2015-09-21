@@ -51,7 +51,7 @@ public class FileBasedBuildHotspotsApplication extends BuildHotspotsApplicationB
     }
 
 	@Override
-	protected void showDrawingSelectionScene() {
+	protected void showDrawingSelectionScene() throws Exception {
         m_primaryStage.setWidth(500); //Set up initial window width
         m_primaryStage.setTitle("Build Hotspots - Draw from File");
         
@@ -67,6 +67,7 @@ public class FileBasedBuildHotspotsApplication extends BuildHotspotsApplicationB
         Label label = new Label("Please specify file name:");
         label.setMinWidth(400);
         TextField textField = new TextField("drawingDataExample001.xml");
+        //TextField textField = new TextField("very-large-system.xml");
 
         Button btn = new Button();
         btn.setText("Show me hotspots!");

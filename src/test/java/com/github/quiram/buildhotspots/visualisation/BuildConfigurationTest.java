@@ -1,6 +1,7 @@
 package com.github.quiram.buildhotspots.visualisation;
 
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
+
 import org.junit.Test;
 
 import java.util.List;
@@ -9,13 +10,13 @@ import static org.junit.Assert.assertEquals;
 
 public class BuildConfigurationTest {
     @Test
-    public void newBuildConfigurationHasNoDepth() {
+    public void newBuildConfigurationHasNoDepth() throws Exception {
         final BuildConfiguration buildConfiguration = getBuildConfiguration();
         assertEquals(0, buildConfiguration.getDepth());
     }
 
     @Test
-    public void buildConfigurationWithOneDependencyHasDepthOne() {
+    public void buildConfigurationWithOneDependencyHasDepthOne() throws Exception {
         final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
         final BuildConfiguration dependentConfiguration = getBuildConfiguration();
 
@@ -25,7 +26,7 @@ public class BuildConfigurationTest {
     }
 
     @Test
-    public void buildConfigurationWithTwoDependenciesAtSameLevelHasDepthOne() {
+    public void buildConfigurationWithTwoDependenciesAtSameLevelHasDepthOne() throws Exception {
         final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
         final BuildConfiguration mainBuildConfiguration2 = getBuildConfiguration();
         final BuildConfiguration dependentConfiguration = getBuildConfiguration();
@@ -37,7 +38,7 @@ public class BuildConfigurationTest {
     }
 
     @Test
-    public void buildConfigurationWithTwoLevelOfChainDependenciesHasDepthTwo() {
+    public void buildConfigurationWithTwoLevelOfChainDependenciesHasDepthTwo() throws Exception {
         final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
         final BuildConfiguration midBuildConfiguration = getBuildConfiguration();
         final BuildConfiguration dependentConfiguration = getBuildConfiguration();
@@ -48,12 +49,12 @@ public class BuildConfigurationTest {
         assertEquals(2, dependentConfiguration.getDepth());
     }
 
-    private BuildConfiguration getBuildConfiguration() {
+    private BuildConfiguration getBuildConfiguration() throws Exception {
         return new BuildConfiguration(new BuildConfigurationType(), 1, 1, null);
     }
 
     @Test
-    public void buildConfigurationWithTwoBranchesOfDepenciesThatEquatToDepthTwo() {
+    public void buildConfigurationWithTwoBranchesOfDepenciesThatEquatToDepthTwo() throws Exception {
         /*
          * A -> C
          * B -> D -> C
@@ -72,14 +73,14 @@ public class BuildConfigurationTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void dependenciesCannotBeChangedOutsideOfBuildConfiguration() {
+    public void dependenciesCannotBeChangedOutsideOfBuildConfiguration() throws Exception {
         final BuildConfiguration b = getBuildConfiguration();
         final List<Dependency> dependencies = b.getDependencies();
         dependencies.add(null);
     }
 
     @Test
-    public void addDependency() {
+    public void addDependency() throws Exception {
         final BuildConfiguration b = getBuildConfiguration();
         final BuildConfiguration a = getBuildConfiguration();
         Dependency dependency = b.addDependency(a);
