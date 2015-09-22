@@ -66,8 +66,13 @@ public class BuildConfiguration extends Group {
             	Alert alert = new Alert(AlertType.INFORMATION);
             	alert.setTitle("Information for Build Configuration");
             	alert.setHeaderText("Name: " + m_xmlBC.getName());
-            	alert.setContentText("Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%\n");
-            	
+            	String alertText = "";
+            	alertText += "Dependent Builds: " + getListStr(getDependents(),false) + "\n";
+            	alertText += "Dependencies: " + getListStr(getDependencies(),true) + "\n";
+            	alertText += "Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%\n";
+            	alert.setContentText(alertText);
+            	alert.getDialogPane().setPrefSize(680, 320);
+            	alert.setResizable(true);
                 alert.showAndWait();
             }
         });      
@@ -93,6 +98,23 @@ public class BuildConfiguration extends Group {
             }
         });      
         m_contextMenu.getItems().add(m_hide);
+    }
+    
+    /*
+     * Return a comma seperated list of all the dependency names
+     * use origin or target depending on flag
+     */
+    private String getListStr(List<Dependency> p_dependencyList, boolean m_origin) {
+    	String ret = "";
+    	for (int c=0;c<p_dependencyList.size();c++) {
+    		if (c>0) ret +=", ";
+    		if (m_origin) {
+	    		ret += p_dependencyList.get(c).getOrigin().getXMLType().getName();
+    		} else {
+	    		ret += p_dependencyList.get(c).getTarget().getXMLType().getName();    			
+    		}
+    	}
+    	return ret;
     }
 
     public void setPosition(double x, double y) {
