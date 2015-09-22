@@ -66,8 +66,8 @@ public class FileBasedBuildHotspotsApplication extends BuildHotspotsApplicationB
 
         Label label = new Label("Please specify file name:");
         label.setMinWidth(400);
-        TextField textField = new TextField("drawingDataExample001.xml");
-        //TextField textField = new TextField("very-large-system.xml");
+        //TextField textField = new TextField("drawingDataExample001.xml");
+        TextField textField = new TextField("very-large-system.xml");
 
         Button btn = new Button();
         btn.setText("Show me hotspots!");

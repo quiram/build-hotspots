@@ -132,7 +132,7 @@ public class BuildConfiguration extends Group {
      */
     public int getNumDirectParents() throws Exception {
     	int ret = 0;
-    	for (Dependency d : m_upwardDependencies) {
+    	for (Dependency d : m_Dependents) {
     		if (d.isVisible()) ret++;
     	}
     	return ret;
@@ -216,8 +216,9 @@ public class BuildConfiguration extends Group {
      * Keep a list of all related dependencies so that this object can redraw them when it is moved
      */
     private List<Dependency> m_Dependencies = new ArrayList<>(); //link to BC's that are dependancies of this BC
-    private List<Dependency> m_upwardDependencies = new ArrayList<>(); //link to BC's that are dependant on this one
-    																	//TODO I can't think of a good name for this variable
+    private List<Dependency> m_Dependents = new ArrayList<>(); //link to BC's that are dependant on this one
+    public List<Dependency> getDependencies() {return m_Dependencies;}
+    public List<Dependency> getDependents() {return m_Dependents;}
 
     public Dependency addDependency(BuildConfiguration p_bc) {
         final Dependency dependency = new Dependency(p_bc, this);
@@ -227,12 +228,12 @@ public class BuildConfiguration extends Group {
     }
     
     public void RegisterDependantBC(Dependency p_dep) {
-    	m_upwardDependencies.add(p_dep);
+    	m_Dependents.add(p_dep);
     }
     
     public void Draw() {
     	m_Dependencies.forEach(Dependency::Draw);
-    	m_upwardDependencies.forEach(Dependency::Draw);
+    	m_Dependents.forEach(Dependency::Draw);
     }
 
     public double getRadius() {
