@@ -71,6 +71,16 @@ public class DependencyWalkLayout extends LayoutBase{
 			}
 			
 		}
+		
+		public void finalDraw(
+				int p_xOffset, 
+				int p_yOffset, 
+				int p_xSpacing, 
+				int p_ySpacing
+		) throws Exception {
+			if (!m_drawn) throw new Exception("ERROR Not yet drawn");
+			m_bc.setPosition(p_xOffset + (m_gridX * p_xSpacing), p_yOffset + (m_gridY * p_ySpacing));
+		}
 	}
 	
 
@@ -78,13 +88,25 @@ public class DependencyWalkLayout extends LayoutBase{
 		super("Dependency Walk");
 	}
 
-	private void draw(BuildConfigWrapper p_bcw) throws Exception {
-		//TODO
-		p_bcw.draw(1, 1);
+	//Draw the Build Configurations
+	//Return the number of rows used in the output
+	private int drawWithDependencies(BuildConfigWrapper p_bcw, int p_curRow) throws Exception {
+		if (p_bcw.isDrawn()) return 0;
+		int rows_output = 0;
+		//Draw current
+		p_bcw.draw(p_bcw.getBuildConfiguration().getDependentDepth(), p_curRow);
 		
+		for (Dependency d : p_bcw.getBuildConfiguration().getDependencies()) {
+			if (d.getOrigin()==p_bcw.getBuildConfiguration()) throw new Exception("Logical Error");
+			rows_output += drawWithDependencies(bcList.get(d.getOrigin().getXMLType().getName()),(p_curRow + rows_output) );
+		}
+		
+		if (rows_output==0) rows_output=1;
+		
+		return rows_output;		
 	}
 	
-	private Map<String,BuildConfigWrapper> bcList = null; //list contianing everything we want to graph 
+	private Map<String,BuildConfigWrapper> bcList = null; //list containing everything we want to graph 
 	
 	@Override
 	public void executeLayout(Map<String, BuildConfiguration> p_buildConfigurations) throws Exception {
@@ -119,10 +141,10 @@ public class DependencyWalkLayout extends LayoutBase{
 			if (bcw.getGraphID()==-1) throw new Exception("Algroythm missed a build configuration");
 		}
 
-		//Build list of all top level dependencies
+		//Build list of all top level - as we will walk down dependencies we want where depandents = 0
 		List<String> topLevel = new ArrayList<String>();
 		for (BuildConfigWrapper bcw : bcList.values()) {
-			if (bcw.getBuildConfiguration().getDependencyDepth()==0) topLevel.add(bcw.getBuildConfiguration().getXMLType().getName());
+			if (bcw.getBuildConfiguration().getDependentDepth()==0) topLevel.add(bcw.getBuildConfiguration().getXMLType().getName());
 		}
 		
 		//sort by graph so we draw each individual disjointed graph separately
@@ -136,23 +158,28 @@ public class DependencyWalkLayout extends LayoutBase{
 		Collections.sort(topLevel, GRAPH_ORDER);		
 
 		
+		int cur_row = 1;
 		//show result
 		for (String cur : topLevel) {
 			BuildConfigWrapper bcw = bcList.get(cur);
-			System.out.print(bcw.getGraphID());
-			System.out.print(" - ");
-			System.out.print(cur);
-			System.out.println("");
+			cur_row += drawWithDependencies(bcw, cur_row);
+			//System.out.print(bcw.getGraphID());
+			//System.out.print(" - ");
+			//System.out.print(cur);
+			//System.out.println("");
+		}
+		
+		//Map all virtual grid co-ords to actual locations
+		for (BuildConfigWrapper bcw : bcList.values()) {
+			bcw.finalDraw(
+				65, 
+				65, 
+				260, 
+				120
+			);
 		}
 		
 		
-		
-		
-		//Redundant check - make sure all drawn
-		//
-		//for (BuildConfigWrapper bcw : bcList.values()) {
-		//	if (!bcw.isDrawn()) throw new Exception("Build Configuration was not drawn");
-		//}
 		
 		
 	}

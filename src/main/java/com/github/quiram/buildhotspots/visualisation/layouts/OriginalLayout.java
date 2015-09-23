@@ -12,10 +12,10 @@ public class OriginalLayout extends LayoutBase {
 
 	@Override
 	public void executeLayout(Map<String, BuildConfiguration> p_buildConfigurations) throws Exception {
-        double initialposX = 60;
-        double initialposY = 60;
-        double initialpos_setupWidth = 100;
-        double initialpos_setupHeight = 100;
+        double initialposX = 160;
+        double initialposY = 160;
+        double initialpos_setupWidth = 180;
+        double initialpos_setupHeight = 180;
 		
         //Third pass - reposition builds according to their dependency depth
         final int MAX_DEPTH = 100;

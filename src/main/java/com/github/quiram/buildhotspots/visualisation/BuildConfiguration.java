@@ -56,7 +56,7 @@ public class BuildConfiguration extends Group {
         setLayoutX(p_xPos);
         setLayoutY(p_yPos);
         
-        int circleRadius = 30;
+        int circleRadius = 50;
 
         //TODO Code to change colour of circle dependent on percentage
         m_circle = new Circle(circleRadius, Color.web("blue", 1));
