@@ -123,7 +123,9 @@ public class BuildConfiguration extends Group {
             	alert.setHeaderText("Name: " + m_xmlBC.getName());
             	String alertText = "";
             	alertText += "Dependent Builds: " + getListStr(getDependents(),false) + "\n";
+            	alertText += "Dependent Depth: " + getDependentDepth() + "\n";
             	alertText += "Dependencies: " + getListStr(getDependencies(),true) + "\n";
+            	alertText += "Dependency Depth: " + getDependencyDepth() + "\n";
             	alertText += "Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%\n";
             	alert.setContentText(alertText);
             	alert.getDialogPane().setPrefSize(680, 320);
@@ -215,6 +217,40 @@ public class BuildConfiguration extends Group {
     	}
     	return ret;
     }
+    
+    /*
+     * Returns the dependency depth of the build configuration excluding hidden build configurations
+     * the dependency depth is 0 if there are no dependencies or only hidden dependencies
+     * otherwise the dependency depth is one greater than the maximum depth of the dependencies
+     */
+    public int getDependencyDepth() {
+    	int max_depth_of_dependancies = -1;
+    	int tmp;
+    	for (Dependency d : m_Dependencies) {
+    		if (d.getOrigin().isVisible()) {
+    			tmp = d.getOrigin().getDependencyDepth();
+    			if (tmp>max_depth_of_dependancies) max_depth_of_dependancies = tmp;
+    		}
+    	};
+    	return max_depth_of_dependancies + 1;
+    }
+    
+    /*
+     * Returns the dependent depth of the build configuration excluding hidden build configurations
+     * the dependent depth is 0 if there are no dependencies or only hidden dependencies
+     * otherwise the dependency depth is one greater than the maximum depth of the dependencies
+     */
+    public int getDependentDepth() {
+    	int max_depth_of_dependents = -1;
+    	int tmp;
+    	for (Dependency d : m_Dependents) {
+    		if (d.getTarget().isVisible()) {
+    			tmp = d.getTarget().getDependentDepth();
+    			if (tmp>max_depth_of_dependents) max_depth_of_dependents = tmp;
+    		}
+    	};
+    	return max_depth_of_dependents + 1;
+    }    
     
     public void hide() throws Exception {
     	if (getNumDirectParents()!=0) throw new Exception("Can't hide");
