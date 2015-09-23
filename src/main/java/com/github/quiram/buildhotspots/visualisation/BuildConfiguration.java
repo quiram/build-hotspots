@@ -5,17 +5,25 @@ import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,12 +55,58 @@ public class BuildConfiguration extends Group {
 
         setLayoutX(p_xPos);
         setLayoutY(p_yPos);
+        
+        int circleRadius = 30;
 
-        m_circle = new Circle(30, Color.web("blue", 1));
+        //TODO Code to change colour of circle dependent on percentage
+        m_circle = new Circle(circleRadius, Color.web("blue", 1));
         getChildren().add(m_circle);
 
-        Text text = new Text(m_xmlBC.getName());
-        getChildren().add(text);
+        HBox hb = new HBox();
+        Label t = new Label(m_xmlBC.getName());
+        
+        /*
+         * this section commented out
+         * we may want to experiment with this if we want to decrease the size of the text to fit inside circle
+        Bounds circleBounds = m_circle.getBoundsInLocal();
+        Bounds textBounds = t.getBoundsInLocal();
+        //double wid_dif = textBounds.getWidth() - circleBounds.getWidth();
+        //if (circleBounds.getWidth()<textBounds.getWidth()) {
+        if (wid_dif>0) {
+            double scalex = circleBounds.getWidth()/textBounds.getWidth();
+            //System.out.println(scalex);
+            // scale the text down to what the circle
+            //t.setScaleX( scalex );
+            
+            //t.setLayoutX(- (wid_dif / 2));
+            //System.out.println(wid_dif);
+        }
+        */
+        
+        hb.getChildren().add(t);
+        hb.setPrefHeight(circleRadius*2);
+        hb.setPrefWidth(circleRadius*2);
+        
+        hb.setLayoutX(-circleRadius);
+        hb.setLayoutY(-circleRadius);
+        hb.setAlignment(Pos.CENTER);
+
+        getChildren().add(hb);
+        
+        //
+        //Showing borders for debugging
+        /*
+        hb.setBorder(
+        		new Border(
+        				new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, null, null)
+        		)
+        );
+        t.setBorder(
+        		new Border(
+        				new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)
+        		)
+        );        
+        */
 
         setOnMousePressed(new MousePressedHandler());
         setOnMouseDragged(new MouseDraggedHandler());

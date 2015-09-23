@@ -14,7 +14,7 @@ public class DependencyWalkLayout extends LayoutBase{
 	public void executeLayout(Map<String, BuildConfiguration> p_buildConfigurations) throws Exception {
 		
 		
-		//TODO
+		//TODO code this. Just dummy position change for now
 		for (BuildConfiguration bc : p_buildConfigurations.values()) {
 			bc.setPosition(100, 100);
 		}

@@ -19,7 +19,7 @@
          </BuildStats>
       </BuildConfiguration>
       <BuildConfiguration>
-         <Name>C</Name>
+         <Name>Build with a really really long name</Name>
          <Dependencies>
             <Dependency>
                <BuildConfigurationName>A</BuildConfigurationName>
