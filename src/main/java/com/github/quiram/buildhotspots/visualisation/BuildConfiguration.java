@@ -121,6 +121,7 @@ public class BuildConfiguration extends Group {
     public void setPosition(double x, double y) {
         setLayoutX(x);
         setLayoutY(y);
+        Draw();
     }
 
     public BuildConfigurationType getXMLType() {

@@ -3,12 +3,14 @@ package com.github.quiram.buildhotspots.visualisation;
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
 import com.github.quiram.buildhotspots.drawingdata.DependencyType;
 import com.github.quiram.buildhotspots.drawingdata.Root;
+import com.github.quiram.buildhotspots.visualisation.layouts.DependencyWalkLayout;
 import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
 import com.github.quiram.buildhotspots.visualisation.layouts.OriginalLayout;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -57,6 +59,8 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     	m_layouts = new HashMap<String,LayoutBase>();
     	LayoutBase lb = null;
     	lb = new OriginalLayout();
+    	m_layouts.put(lb.getName(), lb);
+    	lb = new DependencyWalkLayout();
     	m_layouts.put(lb.getName(), lb);
     }
     
@@ -109,7 +113,38 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         });
         toolbar.getChildren().add(showAll);
         
+        toolbar.getChildren().add(new Separator());
+        
+        for (LayoutBase lb : m_layouts.values()) {
+	        Button curBut = new Button(lb.getName());
+	        curBut.setOnAction(new layoutEventHandler(lb));
+	        toolbar.getChildren().add(curBut);
+        }
+        
         return toolbar;
+    }
+    
+    private class layoutEventHandler implements EventHandler<ActionEvent> {
+    	LayoutBase m_lb = null;
+    	public layoutEventHandler(LayoutBase p_lb) {
+    		m_lb = p_lb;
+    	}
+
+		@Override
+		public void handle(ActionEvent arg0) {
+			try {
+				m_lb.executeLayout(m_buildConfigurations);
+			} catch (Exception e) {
+            	Alert alert = new Alert(AlertType.ERROR);
+            	alert.setTitle("Error Executing Layout");
+            	alert.setHeaderText("Layout " + m_lb.getName() + " failed");
+            	String alertText = e.getMessage();
+            	alert.setContentText(alertText);
+                alert.showAndWait();
+				e.printStackTrace();
+			}
+		}
+    	
     }
 
     private void createScene() {
@@ -205,6 +240,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 	            }
 	        }
 	        
+	        //TODO Future version will replace this with code to load state rather then preform layout
 	        LayoutBase lo = this.m_layouts.get("Original");
 	        lo.executeLayout(m_buildConfigurations);
 
