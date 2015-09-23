@@ -3,6 +3,8 @@ package com.github.quiram.buildhotspots.visualisation;
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
 import com.github.quiram.buildhotspots.drawingdata.DependencyType;
 import com.github.quiram.buildhotspots.drawingdata.Root;
+import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
+import com.github.quiram.buildhotspots.visualisation.layouts.OriginalLayout;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -37,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -48,7 +51,15 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     protected Stage m_primaryStage = null;
     private final Group m_root = new Group();
     private ScrollPane m_scroll = null;
+    private Map<String,LayoutBase> m_layouts = null; //List of supported layouts
 
+    public BuildHotspotsApplicationBase() {
+    	m_layouts = new HashMap<String,LayoutBase>();
+    	LayoutBase lb = null;
+    	lb = new OriginalLayout();
+    	m_layouts.put(lb.getName(), lb);
+    }
+    
     private HBox setupToolbar() {
         HBox toolbar = new HBox();
 
@@ -193,25 +204,10 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 	                }
 	            }
 	        }
-	
-	        //Third pass - reposition builds according to their dependency depth
-	        final int MAX_DEPTH = 100;
-	        int[] depthCounter = new int[MAX_DEPTH];
-	
-	        m_buildConfigurations.values().forEach(b -> {
-	            final int depth = b.getDepth();
-	            double x = initialposX + depth * initialpos_setupWidth;
-	            double y = initialposY + depthCounter[depth] * initialpos_setupHeight;
-	
-	            // purposely missalign columns for better visibility
-	            if (depth % 2 == 1) {
-	                y += initialpos_setupHeight / 2;
-	            }
-	
-	            b.setPosition(x, y);
-	            b.Draw();
-	            depthCounter[depth]++;
-	        });
+	        
+	        LayoutBase lo = this.m_layouts.get("Original");
+	        lo.executeLayout(m_buildConfigurations);
+
     	} catch (Exception e) {
     		e.printStackTrace();
         	Alert alert = new Alert(AlertType.INFORMATION);

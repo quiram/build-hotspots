@@ -1,6 +1,7 @@
 package com.github.quiram.buildhotspots.visualisation;
 
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
+import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
