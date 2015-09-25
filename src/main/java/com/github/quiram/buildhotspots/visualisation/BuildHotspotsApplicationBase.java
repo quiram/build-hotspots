@@ -12,7 +12,9 @@ import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -310,7 +312,45 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     }
 
     private static final double MAX_SCALE = 5.5d;
-    private static final double MIN_SCALE = .1d;
+    private static final double MIN_SCALE = .01d;
+
+    /*
+     * Scroll the window so that the specified point in the canvas lines up with the specified point in the window
+     * 
+     * lots of comments here as coding this made my head hurt
+     */
+    private void scrollTo(Point2D p_windowPos, Point2D p_canvasPos) {
+    	double scale = m_root.getScaleX();
+    	//this code currently dosen't work.
+    	//it seems to behave correctly when the xscrollbar is at the left most but it is wanders off target
+    	//as we zoom in and out. It needs looking at
+    	
+    	//System.out.println(" window X:" + p_windowPos.getX());
+    	//System.out.println(" canvas X:" + p_canvasPos.getX());
+    	//System.out.println(" scale:" + scale);
+    	
+    	//System.out.println("Canvas:" + m_root.getBoundsInLocal().getWidth());
+    	
+    	//The area the window takes up in canvas co-ords
+    	//System.out.println("Scroll Width on canvas:" + (m_scroll.getWidth() / scale));
+    	
+    	//xTotalScrollRange in canvas co-ordinates
+    	double xTotalScrollRange =  m_root.getBoundsInLocal().getWidth() - (m_scroll.getWidth() / scale);
+    	
+    	double xOffscreen = p_canvasPos.getX() - (p_windowPos.getX() / scale);
+    	if (xOffscreen<0) xOffscreen = 0;
+
+    	m_scroll.setHvalue(xOffscreen / xTotalScrollRange);
+    
+    	
+    	
+    	//Y code below - should mirror first bit
+    	double yTotalScrollRange =  m_root.getBoundsInLocal().getHeight() - (m_scroll.getHeight() / scale);
+    	double yOffscreen = p_canvasPos.getY() - (p_windowPos.getY() / scale);
+    	if (yOffscreen<0) xOffscreen = 0;
+    	m_scroll.setVvalue(yOffscreen / yTotalScrollRange);
+    	
+    }
 
     private class ZoomHandler implements EventHandler<ScrollEvent> {
 
@@ -320,23 +360,22 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         @Override
         public void handle(ScrollEvent scrollEvent) {
             if (scrollEvent.isControlDown()) {
+            	
+            	Point2D mousePos = new Point2D(scrollEvent.getSceneX(),scrollEvent.getSceneY());
+            	Point2D scenePositionToCentreZoomAround = m_root.sceneToLocal(new Point2D( scrollEvent.getSceneX(),scrollEvent.getSceneY()));
+
                 final double scale = calculateScale(scrollEvent);
                 m_root.setScaleX(scale);
                 m_root.setScaleY(scale);
 
-                m_root.autosize();
-                m_root.layout();
-                m_root.autosize();
-                m_root.layout();
-                m_root.autosize();
-                m_root.layout();
-
+                scrollTo(mousePos,scenePositionToCentreZoomAround);
+                
                 scrollEvent.consume();
             }
         }
 
         private double calculateScale(ScrollEvent scrollEvent) {
-            double scale = m_root.getScaleX() + scrollEvent.getDeltaY() / 100;
+            double scale = m_root.getScaleX() + scrollEvent.getDeltaY() / 500;
 
             if (scale <= MIN_SCALE) {
                 scale = MIN_SCALE;
