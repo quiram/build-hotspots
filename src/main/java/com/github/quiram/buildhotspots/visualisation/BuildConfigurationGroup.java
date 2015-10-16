@@ -154,23 +154,6 @@ public class BuildConfigurationGroup extends Group {
         return m_Dependents.stream().map(dependencyGroup -> dependencyGroup.getTarget().getName()).collect(toList());
     }
 
-    /*
-     * Return a comma separated list of all the dependency names
-     * use origin or target depending on flag
-     */
-    private String getListStr(List<DependencyGroup> p_dependencyGroupList, boolean m_origin) {
-        String ret = "";
-        for (int c = 0; c < p_dependencyGroupList.size(); c++) {
-            if (c > 0) ret += ", ";
-            if (m_origin) {
-                ret += p_dependencyGroupList.get(c).getOrigin().getName();
-            } else {
-                ret += p_dependencyGroupList.get(c).getTarget().getName();
-            }
-        }
-        return ret;
-    }
-
     public void setPosition(double x, double y) {
         setLayoutX(x);
         setLayoutY(y);

@@ -2,7 +2,7 @@ package com.github.quiram.buildhotspots.visualisation;
 
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -73,8 +73,15 @@ public class BuildConfigurationTest {
     @Test(expected = UnsupportedOperationException.class)
     public void dependenciesCannotBeChangedOutsideOfBuildConfiguration() throws Exception {
         final BuildConfiguration b = getBuildConfiguration();
-        final List<Dependency> dependencies = b.getDependencies();
+        final Set<BuildConfiguration> dependencies = b.getDependencies();
         dependencies.add(null);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void dependentsCannotBeChangedOutsideOfBuildConfiguration() throws Exception {
+        final BuildConfiguration b = getBuildConfiguration();
+        final Set<BuildConfiguration> dependents = b.getDependents();
+        dependents.add(null);
     }
 
     @Test
@@ -84,22 +91,15 @@ public class BuildConfigurationTest {
         
         //This test makes a dependancy of b
         //so a must be built before b
-        Dependency Dependency = b.addDependency(a);
+        b.addDependency(a);
 
-        //First check that b has it's dependency registered
-        List<Dependency> dependencies = b.getDependencies();
-        List<Dependency> dependants = b.getDependents();
-        assertEquals(1, dependencies.size());
-        assertEquals(0, dependants.size());
-        assertEquals(a, Dependency.getOrigin());
-        assertEquals(b, Dependency.getTarget());
-        
+        //First check that b has its dependency registered
+        assertEquals(1, b.getDependencies().size());
+        assertEquals(0, b.getDependents().size());
+
         //Now check the reverse
         //a has a dependent registered
-        dependencies = a.getDependencies();
-        dependants = a.getDependents();
-        assertEquals(0, dependencies.size());
-        assertEquals(1, dependants.size());
+        assertEquals(0, a.getDependencies().size());
+        assertEquals(1, a.getDependents().size());
     }
-
 }
