@@ -2,6 +2,7 @@ package com.github.quiram.buildhotspots;
 
 import com.github.quiram.buildhotspots.clients.CiClient;
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
+import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType.BuildStats;
 import com.github.quiram.buildhotspots.drawingdata.DependencyType;
 import com.github.quiram.buildhotspots.drawingdata.Root;
 import com.github.quiram.buildhotspots.drawingdata.Root.BuildConfigurations;
@@ -63,5 +64,15 @@ public class DrawingBuilderTest {
         final List<DependencyType> dependencyList = buildConfiguration.getDependencies().getDependency();
         assertFalse(dependencyList.isEmpty());
         assertEquals(mainBuildName, dependencyList.get(0).getBuildConfigurationName());
+    }
+
+    @Test
+    public void buildStatsDefaultToFifty() {
+        when(ciClient.getAllBuildConfigurations()).thenReturn(singletonList("my-build"));
+        Root documentRoot = drawingBuilder.build();
+        final List<BuildConfigurationType> buildConfiguration = documentRoot.getBuildConfigurations().getBuildConfiguration();
+        final BuildStats buildStats = buildConfiguration.get(0).getBuildStats();
+        assertNotNull(buildStats);
+        assertEquals(50, buildStats.getPercentage());
     }
 }
