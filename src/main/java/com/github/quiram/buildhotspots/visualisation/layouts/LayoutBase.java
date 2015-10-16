@@ -1,8 +1,8 @@
 package com.github.quiram.buildhotspots.visualisation.layouts;
 
-import java.util.Map;
+import com.github.quiram.buildhotspots.visualisation.BuildConfigurationGroup;
 
-import com.github.quiram.buildhotspots.visualisation.BuildConfiguration;
+import java.util.Map;
 
 /*
  * Base class for all different layout types
@@ -14,8 +14,8 @@ public class LayoutBase {
 		m_name = p_name;
 	}
 	public String getName() {return m_name;}
-	
-	public void executeLayout(Map<String, BuildConfiguration> p_buildConfigurations) throws Exception{
+
+	public void executeLayout(Map<String, BuildConfigurationGroup> p_buildConfigurations) throws Exception {
 		throw new Exception("Should be overridden");
 	}
 }

@@ -1,7 +1,5 @@
 package com.github.quiram.buildhotspots.visualisation;
 
-import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
-
 import org.junit.Test;
 
 import java.util.List;
@@ -50,11 +48,11 @@ public class BuildConfigurationTest {
     }
 
     private BuildConfiguration getBuildConfiguration() throws Exception {
-        return new BuildConfiguration(new BuildConfigurationType(), 1, 1, null);
+        return new BuildConfiguration();
     }
 
     @Test
-    public void buildConfigurationWithTwoBranchesOfDepenciesThatEquatToDepthTwo() throws Exception {
+    public void buildConfigurationWithTwoBranchesOfDependenciesThatEquatToDepthTwo() throws Exception {
         /*
          * A -> C
          * B -> D -> C
@@ -86,15 +84,15 @@ public class BuildConfigurationTest {
         
         //This test makes a dependancy of b
         //so a must be built before b
-        Dependency dependency = b.addDependency(a);
+        Dependency Dependency = b.addDependency(a);
 
         //First check that b has it's dependency registered
         List<Dependency> dependencies = b.getDependencies();
         List<Dependency> dependants = b.getDependents();
         assertEquals(1, dependencies.size());
         assertEquals(0, dependants.size());
-        assertEquals(a, dependency.getOrigin());
-        assertEquals(b, dependency.getTarget());
+        assertEquals(a, Dependency.getOrigin());
+        assertEquals(b, Dependency.getTarget());
         
         //Now check the reverse
         //a has a dependent registered

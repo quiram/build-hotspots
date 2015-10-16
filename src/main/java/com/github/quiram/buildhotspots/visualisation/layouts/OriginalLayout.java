@@ -1,8 +1,8 @@
 package com.github.quiram.buildhotspots.visualisation.layouts;
 
-import java.util.Map;
+import com.github.quiram.buildhotspots.visualisation.BuildConfigurationGroup;
 
-import com.github.quiram.buildhotspots.visualisation.BuildConfiguration;
+import java.util.Map;
 
 public class OriginalLayout extends LayoutBase {
 
@@ -11,7 +11,7 @@ public class OriginalLayout extends LayoutBase {
 	}
 
 	@Override
-	public void executeLayout(Map<String, BuildConfiguration> p_buildConfigurations) throws Exception {
+    public void executeLayout(Map<String, BuildConfigurationGroup> p_buildConfigurations) throws Exception {
         double initialposX = 160;
         double initialposY = 160;
         double initialpos_setupWidth = 180;

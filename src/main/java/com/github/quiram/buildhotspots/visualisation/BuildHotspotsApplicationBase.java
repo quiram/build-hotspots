@@ -6,44 +6,34 @@ import com.github.quiram.buildhotspots.drawingdata.Root;
 import com.github.quiram.buildhotspots.visualisation.layouts.DependencyWalkLayout;
 import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
 import com.github.quiram.buildhotspots.visualisation.layouts.OriginalLayout;
-
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /*
@@ -58,11 +48,10 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     private Map<String,LayoutBase> m_layouts = null; //List of supported layouts
 
     public BuildHotspotsApplicationBase() {
-    	m_layouts = new HashMap<String,LayoutBase>();
-    	LayoutBase lb = null;
-    	lb = new OriginalLayout();
-    	m_layouts.put(lb.getName(), lb);
-    	lb = new DependencyWalkLayout();
+        m_layouts = new HashMap<>();
+        LayoutBase lb = new OriginalLayout();
+        m_layouts.put(lb.getName(), lb);
+        lb = new DependencyWalkLayout();
     	m_layouts.put(lb.getName(), lb);
     }
     
@@ -94,12 +83,12 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         Button showAll = new Button("Show All");
         showAll.setOnAction(ee -> {
         	try {
-	            for (BuildConfiguration bc : m_buildConfigurations.values()) {
-	            	if (!bc.isVisible()) {
-	            		bc.unhide();
-	            	}
-	            }
-        	} catch (Exception e) {
+                for (BuildConfigurationGroup bc : m_buildConfigurations.values()) {
+                    if (!bc.isVisible()) {
+                        bc.unhide();
+                    }
+                }
+            } catch (Exception e) {
         		e.printStackTrace();
             	Alert alert = new Alert(AlertType.ERROR);
             	alert.setTitle("Exception showing");
@@ -188,8 +177,8 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 			clearAllContextMenus();
 		}
     }
-    
-    private Map<String, BuildConfiguration> m_buildConfigurations = new HashMap<>();
+
+    private Map<String, BuildConfigurationGroup> m_buildConfigurations = new HashMap<>();
 
     protected void AddDrawingToScene(Root p_docRoot) {
     	try {
@@ -202,21 +191,21 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 	
 	        int c = 0;
 	        for (BuildConfigurationType curBCXML : p_docRoot.getBuildConfigurations().getBuildConfiguration()) {
-	            BuildConfiguration bc = new BuildConfiguration(
-	                    curBCXML,
-	                    initialposX + (c * initialpos_setupWidth),
-	                    initialposY + (c * initialpos_setupHeight),
-	                    this
-	            );
+                BuildConfigurationGroup bc = new BuildConfigurationGroup(
+                        curBCXML,
+                        initialposX + (c * initialpos_setupWidth),
+                        initialposY + (c * initialpos_setupHeight),
+                        this
+                );
 	            m_root.getChildren().add(bc);
-	
-	            BuildConfiguration foundBC = m_buildConfigurations.get(curBCXML.getName());
-	            if (foundBC != null)
-	                throw new RuntimeException("Two BuildConfigurations exist in this file with the name " + curBCXML.getName());
-	            m_buildConfigurations.put(curBCXML.getName(), bc);
-	
-	            c++;
-	        }
+
+                BuildConfigurationGroup foundBC = m_buildConfigurations.get(curBCXML.getName());
+                if (foundBC != null)
+                    throw new RuntimeException("Two BuildConfigurations exist in this file with the name " + curBCXML.getName());
+                m_buildConfigurations.put(curBCXML.getName(), bc);
+
+                c++;
+            }
 	
 	        //Following code for testing
 	        //Marshaller m = jaxbContext.createMarshaller();
@@ -225,22 +214,22 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 	        //End testing code
 	
 	        //Second pass - go through all configurations and add dependencies
-	        for (BuildConfiguration curBC : m_buildConfigurations.values()) {
-	            if (curBC.getXMLType().getDependencies() != null) {
-	                for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
-	                    if (curDepXML.getBuildConfigurationName().equals(curBC.getXMLType().getName()))
-	                        throw new RuntimeException("Build Configuration " + curBC.getXMLType().getName() + " is dependant on itself");
-	
-	                    //look up the other build configuration
-	                    BuildConfiguration foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
-	
-	                    Dependency d = foreignBC.addDependency(curBC);
-	                    d.Draw();
-	                    m_root.getChildren().add(d);
-	
-	                }
-	            }
-	        }
+            for (BuildConfigurationGroup curBC : m_buildConfigurations.values()) {
+                if (curBC.getXMLType().getDependencies() != null) {
+                    for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
+                        if (curDepXML.getBuildConfigurationName().equals(curBC.getXMLType().getName()))
+                            throw new RuntimeException("Build Configuration " + curBC.getXMLType().getName() + " is dependant on itself");
+
+                        //look up the other build configuration
+                        BuildConfigurationGroup foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
+
+                        DependencyGroup d = foreignBC.addDependency(curBC);
+                        d.Draw();
+                        m_root.getChildren().add(d);
+
+                    }
+                }
+            }
 	        
 	        //TODO Future version will replace this with code to load state rather then preform layout
 	        LayoutBase lo = this.m_layouts.get("Original");
@@ -368,7 +357,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
                 m_root.setScaleX(scale);
                 m_root.setScaleY(scale);
 
-                scrollTo(mousePos,scenePositionToCentreZoomAround);
+                scrollTo(mousePos, scenePositionToCentreZoomAround);
                 
                 scrollEvent.consume();
             }
@@ -403,10 +392,10 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 	}
 
 	public void clearAllContextMenus() {
-		for (BuildConfiguration bc : m_buildConfigurations.values()) {
-			bc.clearContextMenu();
-		}
-		
-	}
+        for (BuildConfigurationGroup bc : m_buildConfigurations.values()) {
+            bc.clearContextMenu();
+        }
+
+    }
 
 }
