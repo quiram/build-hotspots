@@ -335,9 +335,9 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     	//Y code below - should mirror first bit
     	double yTotalScrollRange =  m_root.getBoundsInLocal().getHeight() - (m_scroll.getHeight() / scale);
     	double yOffscreen = p_canvasPos.getY() - (p_windowPos.getY() / scale);
-    	if (yOffscreen<0) xOffscreen = 0;
-    	m_scroll.setVvalue(yOffscreen / yTotalScrollRange);
-    	
+        if (yOffscreen < 0) yOffscreen = 0;
+        m_scroll.setVvalue(yOffscreen / yTotalScrollRange);
+
     }
 
     private class ZoomHandler implements EventHandler<ScrollEvent> {
