@@ -217,8 +217,8 @@ public abstract class BuildHotspotsApplicationBase extends Application {
             for (BuildConfigurationGroup curBC : m_buildConfigurations.values()) {
                 if (curBC.getXMLType().getDependencies() != null) {
                     for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
-                        if (curDepXML.getBuildConfigurationName().equals(curBC.getXMLType().getName()))
-                            throw new RuntimeException("Build Configuration " + curBC.getXMLType().getName() + " is dependant on itself");
+                        if (curDepXML.getBuildConfigurationName().equals(curBC.getName()))
+                            throw new RuntimeException("Build Configuration " + curBC.getName() + " is dependant on itself");
 
                         //look up the other build configuration
                         BuildConfigurationGroup foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());

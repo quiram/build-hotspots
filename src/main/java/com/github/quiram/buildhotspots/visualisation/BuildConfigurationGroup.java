@@ -16,8 +16,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+
+import static java.lang.String.join;
+import static java.util.stream.Collectors.toList;
 
 /*
  * Class to represent a build configuration. It holds the JavaFX objects used to display this build configuration 
@@ -110,9 +112,9 @@ public class BuildConfigurationGroup extends Group {
             alert.setTitle("Information for Build Configuration");
             alert.setHeaderText("Name: " + m_xmlBC.getName());
             String alertText = "";
-            alertText += "Dependent Builds: " + getListStr(getDependents(), false) + NEW_LINE;
+            alertText += "Dependent Builds: " + join(",", getNamesOfDependents()) + NEW_LINE;
             alertText += "Dependent Depth: " + getDependentDepth() + NEW_LINE;
-            alertText += "Dependencies: " + getListStr(getDependencies(), true) + NEW_LINE;
+            alertText += "Dependencies: " + join(",", getNamesOfDependencies()) + NEW_LINE;
             alertText += "Dependency Depth: " + getDependencyDepth() + NEW_LINE;
             alertText += "Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%" + NEW_LINE;
             alert.setContentText(alertText);
@@ -144,6 +146,14 @@ public class BuildConfigurationGroup extends Group {
         m_contextMenu.getItems().add(m_hide);
     }
 
+    public List<String> getNamesOfDependencies() {
+        return m_Dependencies.stream().map(dependencyGroup -> dependencyGroup.getOrigin().getName()).collect(toList());
+    }
+
+    public List<String> getNamesOfDependents() {
+        return m_Dependents.stream().map(dependencyGroup -> dependencyGroup.getTarget().getName()).collect(toList());
+    }
+
     /*
      * Return a comma separated list of all the dependency names
      * use origin or target depending on flag
@@ -153,9 +163,9 @@ public class BuildConfigurationGroup extends Group {
         for (int c = 0; c < p_dependencyGroupList.size(); c++) {
             if (c > 0) ret += ", ";
             if (m_origin) {
-                ret += p_dependencyGroupList.get(c).getOrigin().getXMLType().getName();
+                ret += p_dependencyGroupList.get(c).getOrigin().getName();
             } else {
-                ret += p_dependencyGroupList.get(c).getTarget().getXMLType().getName();
+                ret += p_dependencyGroupList.get(c).getTarget().getName();
             }
         }
         return ret;
@@ -167,8 +177,13 @@ public class BuildConfigurationGroup extends Group {
         Draw();
     }
 
+    @Deprecated
     public BuildConfigurationType getXMLType() {
         return m_xmlBC;
+    }
+
+    public String getName() {
+        return m_xmlBC.getName();
     }
 
     //Scale the value
@@ -182,15 +197,6 @@ public class BuildConfigurationGroup extends Group {
     private double m_mouseDownY = -1;
     private double m_origLayoutX = -1;
     private double m_origLayoutY = -1;
-
-    public int getDepth() {
-        return m_Dependencies.stream().map(d -> {
-            BuildConfigurationGroup origin = d.getOrigin();
-            int depth = 0;
-            depth = 1 + origin.getDepth();
-            return depth;
-        }).max(Comparator.<Integer>naturalOrder()).orElse(0);
-    }
 
     /*
      * Returns the number of direct parents of this build configuration
@@ -210,7 +216,7 @@ public class BuildConfigurationGroup extends Group {
      * the dependency depth is 0 if there are no dependencies or only hidden dependencies
      * otherwise the dependency depth is one greater than the maximum depth of the dependencies
      */
-    private int getDependencyDepth() {
+    public int getDependencyDepth() {
         int max_depth_of_dependancies = -1;
         int tmp;
         for (DependencyGroup d : m_Dependencies) {
@@ -320,14 +326,7 @@ public class BuildConfigurationGroup extends Group {
     private List<DependencyGroup> m_Dependencies = new ArrayList<>(); //link to BC's that are dependencies of this BC
     private List<DependencyGroup> m_Dependents = new ArrayList<>(); //link to BC's that are dependant on this one
 
-    public List<DependencyGroup> getDependencies() {
-        return m_Dependencies;
-    }
-
-    public List<DependencyGroup> getDependents() {
-        return m_Dependents;
-    }
-
+    @Deprecated
     public DependencyGroup addDependency(BuildConfigurationGroup p_bc) {
         final DependencyGroup dependencyGroup = new DependencyGroup(p_bc, this);
         m_Dependencies.add(dependencyGroup);

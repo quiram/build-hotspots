@@ -1,7 +1,6 @@
 package com.github.quiram.buildhotspots.visualisation.layouts;
 
 import com.github.quiram.buildhotspots.visualisation.BuildConfigurationGroup;
-import com.github.quiram.buildhotspots.visualisation.DependencyGroup;
 
 import java.util.*;
 
@@ -51,22 +50,22 @@ public class DependencyWalkLayout extends LayoutBase{
 			//also visit all neighbours and do the same
 			m_graphID = p_graphID;
 
-            for (DependencyGroup d : m_bc.getDependencies()) {
-                BuildConfigWrapper othW = bcList.get(d.getOrigin().getXMLType().getName());
+            for (String dependencyName : m_bc.getNamesOfDependencies()) {
+                BuildConfigWrapper othW = bcList.get(dependencyName);
                 if (othW==this) throw new Exception("Logical Error");
-				if (othW==null) throw new Exception("Logical error");
-				if(othW.getGraphID()== -1) othW.allocateGraphID(p_graphID);
-			}
-            for (DependencyGroup d : m_bc.getDependents()) {
-                BuildConfigWrapper othW = bcList.get(d.getTarget().getXMLType().getName());
+                if (othW == null) throw new Exception("Logical error");
+                if (othW.getGraphID() == -1) othW.allocateGraphID(p_graphID);
+            }
+
+            for (String dependentName : m_bc.getNamesOfDependents()) {
+                BuildConfigWrapper othW = bcList.get(dependentName);
                 if (othW==this) throw new Exception("Logical Error");
-				if (othW==null) throw new Exception("Logical error");
-				if(othW.getGraphID()== -1) othW.allocateGraphID(p_graphID);
-			}
-			
-		}
-		
-		public void finalDraw(
+                if (othW == null) throw new Exception("Logical error");
+                if (othW.getGraphID() == -1) othW.allocateGraphID(p_graphID);
+            }
+        }
+
+        public void finalDraw(
 				int p_xOffset, 
 				int p_yOffset, 
 				int p_xSpacing, 
@@ -90,14 +89,13 @@ public class DependencyWalkLayout extends LayoutBase{
 		//Draw current
 		p_bcw.draw(p_bcw.getBuildConfiguration().getDependentDepth(), p_curRow);
 
-        for (DependencyGroup d : p_bcw.getBuildConfiguration().getDependencies()) {
-            if (d.getOrigin() == p_bcw.getBuildConfiguration()) throw new Exception("Logical Error");
-            rows_output += drawWithDependencies(bcList.get(d.getOrigin().getXMLType().getName()),(p_curRow + rows_output) );
-		}
-		
-		if (rows_output==0) rows_output=1;
-		
-		return rows_output;		
+        for (String dependencyName : p_bcw.getBuildConfiguration().getNamesOfDependencies()) {
+            rows_output += drawWithDependencies(bcList.get(dependencyName), (p_curRow + rows_output));
+        }
+
+        if (rows_output == 0) rows_output = 1;
+
+        return rows_output;
 	}
 	
 	private Map<String,BuildConfigWrapper> bcList = null; //list containing everything we want to graph 
@@ -111,9 +109,9 @@ public class DependencyWalkLayout extends LayoutBase{
         bcList = new HashMap<>();
         for (BuildConfigurationGroup bc : p_buildConfigurations.values()) {
             if (bc.isVisible()) {
-                bcList.put(bc.getXMLType().getName(),new BuildConfigWrapper(bc));
-				//Set a dummy position for everything - we will update it later
-				bc.setPosition(100, 100);
+                bcList.put(bc.getName(), new BuildConfigWrapper(bc));
+                //Set a dummy position for everything - we will update it later
+                bc.setPosition(100, 100);
 			}
 		}
 		
@@ -138,10 +136,11 @@ public class DependencyWalkLayout extends LayoutBase{
 		//Build list of all top level - as we will walk down dependencies we want where depandents = 0
         List<String> topLevel = new ArrayList<>();
         for (BuildConfigWrapper bcw : bcList.values()) {
-            if (bcw.getBuildConfiguration().getDependentDepth()==0) topLevel.add(bcw.getBuildConfiguration().getXMLType().getName());
-		}
-		
-		//sort by graph so we draw each individual disjointed graph separately
+            if (bcw.getBuildConfiguration().getDependentDepth() == 0)
+                topLevel.add(bcw.getBuildConfiguration().getName());
+        }
+
+        //sort by graph so we draw each individual disjointed graph separately
         Comparator<String> GRAPH_ORDER = (str1, str2) -> {
             BuildConfigWrapper bcw = bcList.get(str1);
             BuildConfigWrapper bcw2 = bcList.get(str2);

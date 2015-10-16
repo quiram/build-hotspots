@@ -22,7 +22,7 @@ public class OriginalLayout extends LayoutBase {
         int[] depthCounter = new int[MAX_DEPTH];
 
         p_buildConfigurations.values().forEach(b -> {
-            final int depth = b.getDepth();
+            final int depth = b.getDependencyDepth();
             double x = initialposX + depth * initialpos_setupWidth;
             double y = initialposY + depthCounter[depth] * initialpos_setupHeight;
 
