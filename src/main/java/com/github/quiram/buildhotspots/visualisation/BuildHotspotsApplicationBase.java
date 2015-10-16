@@ -226,7 +226,6 @@ public abstract class BuildHotspotsApplicationBase extends Application {
                         DependencyGroup d = foreignBC.addDependency(curBC);
                         d.Draw();
                         m_root.getChildren().add(d);
-
                     }
                 }
             }

@@ -316,7 +316,7 @@ public class BuildConfigurationGroup extends Group {
     /*
      * Keep a list of all related dependencies so that this object can redraw them when it is moved
      */
-    private List<DependencyGroup> m_Dependencies = new ArrayList<>(); //link to BC's that are dependancies of this BC
+    private List<DependencyGroup> m_Dependencies = new ArrayList<>(); //link to BC's that are dependencies of this BC
     private List<DependencyGroup> m_Dependents = new ArrayList<>(); //link to BC's that are dependant on this one
 
     public List<DependencyGroup> getDependencies() {
