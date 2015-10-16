@@ -24,6 +24,7 @@ import java.util.List;
  */
 @SuppressWarnings("restriction")
 public class BuildConfigurationGroup extends Group {
+    public static final String NEW_LINE = System.lineSeparator();
     private BuildHotspotsApplicationBase m_App = null;
     private Circle m_circle = null;
     private BuildConfigurationType m_xmlBC = null;
@@ -109,11 +110,11 @@ public class BuildConfigurationGroup extends Group {
             alert.setTitle("Information for Build Configuration");
             alert.setHeaderText("Name: " + m_xmlBC.getName());
             String alertText = "";
-            alertText += "Dependent Builds: " + getListStr(getDependents(), false) + "\n";
-            alertText += "Dependent Depth: " + getDependentDepth() + "\n";
-            alertText += "Dependencies: " + getListStr(getDependencies(), true) + "\n";
-            alertText += "Dependency Depth: " + getDependencyDepth() + "\n";
-            alertText += "Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%\n";
+            alertText += "Dependent Builds: " + getListStr(getDependents(), false) + NEW_LINE;
+            alertText += "Dependent Depth: " + getDependentDepth() + NEW_LINE;
+            alertText += "Dependencies: " + getListStr(getDependencies(), true) + NEW_LINE;
+            alertText += "Dependency Depth: " + getDependencyDepth() + NEW_LINE;
+            alertText += "Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%" + NEW_LINE;
             alert.setContentText(alertText);
             alert.getDialogPane().setPrefSize(680, 320);
             alert.setResizable(true);
@@ -144,7 +145,7 @@ public class BuildConfigurationGroup extends Group {
     }
 
     /*
-     * Return a comma seperated list of all the dependency names
+     * Return a comma separated list of all the dependency names
      * use origin or target depending on flag
      */
     private String getListStr(List<DependencyGroup> p_dependencyGroupList, boolean m_origin) {
@@ -209,7 +210,7 @@ public class BuildConfigurationGroup extends Group {
      * the dependency depth is 0 if there are no dependencies or only hidden dependencies
      * otherwise the dependency depth is one greater than the maximum depth of the dependencies
      */
-    public int getDependencyDepth() {
+    private int getDependencyDepth() {
         int max_depth_of_dependancies = -1;
         int tmp;
         for (DependencyGroup d : m_Dependencies) {
@@ -330,12 +331,8 @@ public class BuildConfigurationGroup extends Group {
     public DependencyGroup addDependency(BuildConfigurationGroup p_bc) {
         final DependencyGroup dependencyGroup = new DependencyGroup(p_bc, this);
         m_Dependencies.add(dependencyGroup);
-        p_bc.RegisterDependantBC(dependencyGroup);
+        p_bc.m_Dependents.add(dependencyGroup);
         return dependencyGroup;
-    }
-
-    public void RegisterDependantBC(DependencyGroup p_dep) {
-        m_Dependents.add(p_dep);
     }
 
     public void Draw() {
