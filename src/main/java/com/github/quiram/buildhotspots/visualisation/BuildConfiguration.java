@@ -8,6 +8,7 @@ import static java.util.Collections.unmodifiableSet;
 public class BuildConfiguration {
     private Set<BuildConfiguration> dependencies = new HashSet<>();
     private Set<BuildConfiguration> dependents = new HashSet<>();
+    private boolean relevant = true;
 
     public void addDependency(BuildConfiguration dependency) {
         dependencies.add(dependency);
@@ -26,5 +27,13 @@ public class BuildConfiguration {
 
     public Set<BuildConfiguration> getDependents() {
         return unmodifiableSet(dependents);
+    }
+
+    public boolean isRelevant() {
+        return relevant;
+    }
+
+    public void setRelevant(boolean relevant) {
+        this.relevant = relevant;
     }
 }

@@ -5,18 +5,19 @@ import org.junit.Test;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BuildConfigurationTest {
     @Test
-    public void newBuildConfigurationHasNoDepth() throws Exception {
-        final BuildConfiguration buildConfiguration = getBuildConfiguration();
+    public void newBuildConfigurationHasNoDepth() {
+        final BuildConfiguration buildConfiguration = new BuildConfiguration();
         assertEquals(0, buildConfiguration.getDepth());
     }
 
     @Test
-    public void buildConfigurationWithOneDependencyHasDepthOne() throws Exception {
-        final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
-        final BuildConfiguration dependentConfiguration = getBuildConfiguration();
+    public void buildConfigurationWithOneDependencyHasDepthOne() {
+        final BuildConfiguration mainBuildConfiguration = new BuildConfiguration();
+        final BuildConfiguration dependentConfiguration = new BuildConfiguration();
 
         dependentConfiguration.addDependency(mainBuildConfiguration);
 
@@ -24,10 +25,10 @@ public class BuildConfigurationTest {
     }
 
     @Test
-    public void buildConfigurationWithTwoDependenciesAtSameLevelHasDepthOne() throws Exception {
-        final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
-        final BuildConfiguration mainBuildConfiguration2 = getBuildConfiguration();
-        final BuildConfiguration dependentConfiguration = getBuildConfiguration();
+    public void buildConfigurationWithTwoDependenciesAtSameLevelHasDepthOne() {
+        final BuildConfiguration mainBuildConfiguration = new BuildConfiguration();
+        final BuildConfiguration mainBuildConfiguration2 = new BuildConfiguration();
+        final BuildConfiguration dependentConfiguration = new BuildConfiguration();
 
         dependentConfiguration.addDependency(mainBuildConfiguration);
         dependentConfiguration.addDependency(mainBuildConfiguration2);
@@ -36,10 +37,10 @@ public class BuildConfigurationTest {
     }
 
     @Test
-    public void buildConfigurationWithTwoLevelOfChainDependenciesHasDepthTwo() throws Exception {
-        final BuildConfiguration mainBuildConfiguration = getBuildConfiguration();
-        final BuildConfiguration midBuildConfiguration = getBuildConfiguration();
-        final BuildConfiguration dependentConfiguration = getBuildConfiguration();
+    public void buildConfigurationWithTwoLevelOfChainDependenciesHasDepthTwo() {
+        final BuildConfiguration mainBuildConfiguration = new BuildConfiguration();
+        final BuildConfiguration midBuildConfiguration = new BuildConfiguration();
+        final BuildConfiguration dependentConfiguration = new BuildConfiguration();
 
         midBuildConfiguration.addDependency(mainBuildConfiguration);
         dependentConfiguration.addDependency(midBuildConfiguration);
@@ -47,21 +48,17 @@ public class BuildConfigurationTest {
         assertEquals(2, dependentConfiguration.getDepth());
     }
 
-    private BuildConfiguration getBuildConfiguration() throws Exception {
-        return new BuildConfiguration();
-    }
-
     @Test
-    public void buildConfigurationWithTwoBranchesOfDependenciesThatEquatToDepthTwo() throws Exception {
+    public void buildConfigurationWithTwoBranchesOfDependenciesThatEquatToDepthTwo() {
         /*
          * A -> C
          * B -> D -> C
          */
 
-        final BuildConfiguration A = getBuildConfiguration();
-        final BuildConfiguration B = getBuildConfiguration();
-        final BuildConfiguration C = getBuildConfiguration();
-        final BuildConfiguration D = getBuildConfiguration();
+        final BuildConfiguration A = new BuildConfiguration();
+        final BuildConfiguration B = new BuildConfiguration();
+        final BuildConfiguration C = new BuildConfiguration();
+        final BuildConfiguration D = new BuildConfiguration();
 
         C.addDependency(A);
         D.addDependency(B);
@@ -71,25 +68,25 @@ public class BuildConfigurationTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void dependenciesCannotBeChangedOutsideOfBuildConfiguration() throws Exception {
-        final BuildConfiguration b = getBuildConfiguration();
+    public void dependenciesCannotBeChangedOutsideOfBuildConfiguration() {
+        final BuildConfiguration b = new BuildConfiguration();
         final Set<BuildConfiguration> dependencies = b.getDependencies();
         dependencies.add(null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void dependentsCannotBeChangedOutsideOfBuildConfiguration() throws Exception {
-        final BuildConfiguration b = getBuildConfiguration();
+    public void dependentsCannotBeChangedOutsideOfBuildConfiguration() {
+        final BuildConfiguration b = new BuildConfiguration();
         final Set<BuildConfiguration> dependents = b.getDependents();
         dependents.add(null);
     }
 
     @Test
-    public void addDependency() throws Exception {
-        final BuildConfiguration b = getBuildConfiguration();
-        final BuildConfiguration a = getBuildConfiguration();
-        
-        //This test makes a dependancy of b
+    public void addDependency() {
+        final BuildConfiguration b = new BuildConfiguration();
+        final BuildConfiguration a = new BuildConfiguration();
+
+        //This test makes a dependency of b
         //so a must be built before b
         b.addDependency(a);
 
@@ -101,5 +98,11 @@ public class BuildConfigurationTest {
         //a has a dependent registered
         assertEquals(0, a.getDependencies().size());
         assertEquals(1, a.getDependents().size());
+    }
+
+    @Test
+    public void buildsAreRelevantByDefault() {
+        final BuildConfiguration a = new BuildConfiguration();
+        assertTrue(a.isRelevant());
     }
 }
