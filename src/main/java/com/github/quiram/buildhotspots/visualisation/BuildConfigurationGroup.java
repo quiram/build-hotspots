@@ -15,8 +15,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
@@ -33,6 +34,7 @@ public class BuildConfigurationGroup extends Group {
     private BuildConfigurationType m_xmlBC = null;
     private final ContextMenu m_contextMenu = new ContextMenu();
     private MenuItem m_hide = new MenuItem("Hide"); //exposed as we need to dynamically show/hide this menu item when the context menu is displayed
+    private Set<DependencyLink> dependencyLinks = new HashSet<>();
 
     public BuildConfigurationGroup(
             BuildConfiguration buildConfiguration, BuildConfigurationType p_xmlBC,
@@ -148,6 +150,10 @@ public class BuildConfigurationGroup extends Group {
         m_contextMenu.getItems().add(m_hide);
     }
 
+    public void registerDependencyLink(DependencyLink dependencyLink) {
+        dependencyLinks.add(dependencyLink);
+    }
+
     public List<String> getNamesOfDependencies() {
         return buildConfiguration.getDependencies().stream().map(BuildConfiguration::getName).collect(toList());
     }
@@ -160,11 +166,6 @@ public class BuildConfigurationGroup extends Group {
         setLayoutX(x);
         setLayoutY(y);
         Draw();
-    }
-
-    @Deprecated
-    public BuildConfigurationType getXMLType() {
-        return m_xmlBC;
     }
 
     public String getName() {
@@ -215,18 +216,16 @@ public class BuildConfigurationGroup extends Group {
 
         buildConfiguration.setRelevant(false);
 
-        for (DependencyGroup d : m_Dependencies) {
-            d.setVisible(false);
-        }
+        dependencyLinks.forEach(dependencyLink -> dependencyLink.setVisible(false));
+
         this.setVisible(false);
     }
 
     public void unhide() throws Exception {
         buildConfiguration.setRelevant(true);
 
-        for (DependencyGroup d : m_Dependencies) {
-            d.setVisible(true);
-        }
+        dependencyLinks.forEach(dependencyLink -> dependencyLink.setVisible(true));
+
         this.setVisible(true);
     }
 
@@ -290,23 +289,8 @@ public class BuildConfigurationGroup extends Group {
         }
     }
 
-    /*
-     * Keep a list of all related dependencies so that this object can redraw them when it is moved
-     */
-    private List<DependencyGroup> m_Dependencies = new ArrayList<>(); //link to BC's that are dependencies of this BC
-    private List<DependencyGroup> m_Dependents = new ArrayList<>(); //link to BC's that are dependant on this one
-
-    @Deprecated
-    public DependencyGroup addDependency(BuildConfigurationGroup p_bc) {
-        final DependencyGroup dependencyGroup = new DependencyGroup(p_bc, this);
-        m_Dependencies.add(dependencyGroup);
-        p_bc.m_Dependents.add(dependencyGroup);
-        return dependencyGroup;
-    }
-
     public void Draw() {
-        m_Dependencies.forEach(DependencyGroup::Draw);
-        m_Dependents.forEach(DependencyGroup::Draw);
+        dependencyLinks.forEach(DependencyLink::Draw);
     }
 
     public double getRadius() {

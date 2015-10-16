@@ -1,7 +1,6 @@
 package com.github.quiram.buildhotspots.visualisation;
 
 import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
-import com.github.quiram.buildhotspots.drawingdata.DependencyType;
 import com.github.quiram.buildhotspots.drawingdata.Root;
 import com.github.quiram.buildhotspots.visualisation.layouts.DependencyWalkLayout;
 import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
@@ -230,28 +229,17 @@ public abstract class BuildHotspotsApplicationBase extends Application {
                 c++;
             }
 
-            //Following code for testing
-            //Marshaller m = jaxbContext.createMarshaller();
-            //m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            ////lets us use             m.marshal( curBC.getXMLType(), System.out );
-            //End testing code
+            // Register Dependency Links for visualisation
+            buildConfigurationMap.values().forEach(buildConfiguration -> {
+                buildConfiguration.getDependencies().forEach(dependency -> {
+                    BuildConfigurationGroup currentBuildConfigurationGroup = m_buildConfigurations.get(buildConfiguration.getName());
+                    BuildConfigurationGroup foreignBuildConfigurationGroup = m_buildConfigurations.get(dependency.getName());
 
-            //Second pass - go through all configurations and add dependencies
-            for (BuildConfigurationGroup curBC : m_buildConfigurations.values()) {
-                if (curBC.getXMLType().getDependencies() != null) {
-                    for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
-                        if (curDepXML.getBuildConfigurationName().equals(curBC.getName()))
-                            throw new RuntimeException("Build Configuration " + curBC.getName() + " is dependant on itself");
-
-                        //look up the other build configuration
-                        BuildConfigurationGroup foreignBC = m_buildConfigurations.get(curDepXML.getBuildConfigurationName());
-
-                        DependencyGroup d = foreignBC.addDependency(curBC);
-                        d.Draw();
-                        m_root.getChildren().add(d);
-                    }
-                }
-            }
+                    final DependencyLink dependencyLink = new DependencyLink(currentBuildConfigurationGroup, foreignBuildConfigurationGroup);
+                    dependencyLink.Draw();
+                    m_root.getChildren().add(dependencyLink);
+                });
+            });
 
             //TODO Future version will replace this with code to load state rather then preform layout
             LayoutBase lo = this.m_layouts.get("Original");

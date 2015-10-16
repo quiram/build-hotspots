@@ -9,7 +9,7 @@ import javafx.scene.transform.Rotate;
  * Class to represent a dependency between two build configurations
  */
 @SuppressWarnings("restriction")
-public class DependencyGroup extends Group {
+public class DependencyLink extends Group {
     private BuildConfigurationGroup target = null;
     private BuildConfigurationGroup origin = null;
 
@@ -18,7 +18,7 @@ public class DependencyGroup extends Group {
     ArrowHead m_targArrow = null;
 
 
-    public DependencyGroup(BuildConfigurationGroup origin, BuildConfigurationGroup target) {
+    public DependencyLink(BuildConfigurationGroup origin, BuildConfigurationGroup target) {
         this.target = target;
         this.origin = origin;
 
@@ -29,14 +29,8 @@ public class DependencyGroup extends Group {
 
         m_targArrow = new ArrowHead();
         getChildren().add(m_targArrow);
-    }
-
-    public BuildConfigurationGroup getOrigin() {
-        return origin;
-    }
-
-    public BuildConfigurationGroup getTarget() {
-        return target;
+        origin.registerDependencyLink(this);
+        target.registerDependencyLink(this);
     }
 
     class ArrowHead extends Group {
