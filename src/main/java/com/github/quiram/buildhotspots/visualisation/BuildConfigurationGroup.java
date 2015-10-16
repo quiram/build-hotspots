@@ -27,6 +27,7 @@ import static java.util.stream.Collectors.toList;
 @SuppressWarnings("restriction")
 public class BuildConfigurationGroup extends Group {
     public static final String NEW_LINE = System.lineSeparator();
+    private final BuildConfiguration buildConfiguration;
     private BuildHotspotsApplicationBase m_App = null;
     private Circle m_circle = null;
     private BuildConfigurationType m_xmlBC = null;
@@ -34,11 +35,12 @@ public class BuildConfigurationGroup extends Group {
     private MenuItem m_hide = new MenuItem("Hide"); //exposed as we need to dynamically show/hide this menu item when the context menu is displayed
 
     public BuildConfigurationGroup(
-            BuildConfigurationType p_xmlBC,
+            BuildConfiguration buildConfiguration, BuildConfigurationType p_xmlBC,
             double p_xPos,
             double p_yPos,
             BuildHotspotsApplicationBase p_App
     ) throws Exception {
+        this.buildConfiguration = buildConfiguration;
         m_App = p_App;
         m_xmlBC = p_xmlBC;
 
@@ -147,11 +149,11 @@ public class BuildConfigurationGroup extends Group {
     }
 
     public List<String> getNamesOfDependencies() {
-        return m_Dependencies.stream().map(dependencyGroup -> dependencyGroup.getOrigin().getName()).collect(toList());
+        return buildConfiguration.getDependencies().stream().map(BuildConfiguration::getName).collect(toList());
     }
 
     public List<String> getNamesOfDependents() {
-        return m_Dependents.stream().map(dependencyGroup -> dependencyGroup.getTarget().getName()).collect(toList());
+        return buildConfiguration.getDependents().stream().map(BuildConfiguration::getName).collect(toList());
     }
 
     public void setPosition(double x, double y) {
@@ -166,7 +168,7 @@ public class BuildConfigurationGroup extends Group {
     }
 
     public String getName() {
-        return m_xmlBC.getName();
+        return buildConfiguration.getName();
     }
 
     //Scale the value
@@ -187,11 +189,7 @@ public class BuildConfigurationGroup extends Group {
      * Hidden parents do not count
      */
     public int getNumDirectParents() throws Exception {
-        int ret = 0;
-        for (DependencyGroup d : m_Dependents) {
-            if (d.isVisible()) ret++;
-        }
-        return ret;
+        return (int) buildConfiguration.getDependents().stream().filter(BuildConfiguration::isRelevant).count();
     }
 
     /*
@@ -200,15 +198,7 @@ public class BuildConfigurationGroup extends Group {
      * otherwise the dependency depth is one greater than the maximum depth of the dependencies
      */
     public int getDependencyDepth() {
-        int max_depth_of_dependancies = -1;
-        int tmp;
-        for (DependencyGroup d : m_Dependencies) {
-            if (d.getOrigin().isVisible()) {
-                tmp = d.getOrigin().getDependencyDepth();
-                if (tmp > max_depth_of_dependancies) max_depth_of_dependancies = tmp;
-            }
-        }
-        return max_depth_of_dependancies + 1;
+        return buildConfiguration.getRelevantDepth();
     }
 
     /*
@@ -217,19 +207,14 @@ public class BuildConfigurationGroup extends Group {
      * otherwise the dependency depth is one greater than the maximum depth of the dependencies
      */
     public int getDependentDepth() {
-        int max_depth_of_dependents = -1;
-        int tmp;
-        for (DependencyGroup d : m_Dependents) {
-            if (d.getTarget().isVisible()) {
-                tmp = d.getTarget().getDependentDepth();
-                if (tmp > max_depth_of_dependents) max_depth_of_dependents = tmp;
-            }
-        }
-        return max_depth_of_dependents + 1;
+        return buildConfiguration.getRelevantDependentDepth();
     }
 
     public void hide() throws Exception {
         if (getNumDirectParents() != 0) throw new Exception("Can't hide");
+
+        buildConfiguration.setRelevant(false);
+
         for (DependencyGroup d : m_Dependencies) {
             d.setVisible(false);
         }
@@ -237,6 +222,8 @@ public class BuildConfigurationGroup extends Group {
     }
 
     public void unhide() throws Exception {
+        buildConfiguration.setRelevant(true);
+
         for (DependencyGroup d : m_Dependencies) {
             d.setVisible(true);
         }

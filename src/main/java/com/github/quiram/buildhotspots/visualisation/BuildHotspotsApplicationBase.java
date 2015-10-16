@@ -45,16 +45,16 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     protected Stage m_primaryStage = null;
     private final Group m_root = new Group();
     private ScrollPane m_scroll = null;
-    private Map<String,LayoutBase> m_layouts = null; //List of supported layouts
+    private Map<String, LayoutBase> m_layouts = null; //List of supported layouts
 
     public BuildHotspotsApplicationBase() {
         m_layouts = new HashMap<>();
         LayoutBase lb = new OriginalLayout();
         m_layouts.put(lb.getName(), lb);
         lb = new DependencyWalkLayout();
-    	m_layouts.put(lb.getName(), lb);
+        m_layouts.put(lb.getName(), lb);
     }
-    
+
     private HBox setupToolbar() {
         HBox toolbar = new HBox();
 
@@ -79,63 +79,64 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         toolbar.getChildren().add(savePNG);
 
         toolbar.getChildren().add(new Separator());
-        
+
         Button showAll = new Button("Show All");
         showAll.setOnAction(ee -> {
-        	try {
+            try {
                 for (BuildConfigurationGroup bc : m_buildConfigurations.values()) {
                     if (!bc.isVisible()) {
                         bc.unhide();
                     }
                 }
             } catch (Exception e) {
-        		e.printStackTrace();
-            	Alert alert = new Alert(AlertType.ERROR);
-            	alert.setTitle("Exception showing");
-            	alert.setHeaderText(e.getMessage());
-            	String s = "";
-            	alert.setContentText(s);
+                e.printStackTrace();
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Exception showing");
+                alert.setHeaderText(e.getMessage());
+                String s = "";
+                alert.setContentText(s);
 
-            	alert.setResizable(true);
-            	alert.getDialogPane().setPrefSize(680, 320);
-            	
-            	alert.showAndWait();    
-        	}
+                alert.setResizable(true);
+                alert.getDialogPane().setPrefSize(680, 320);
+
+                alert.showAndWait();
+            }
         });
         toolbar.getChildren().add(showAll);
-        
+
         toolbar.getChildren().add(new Separator());
-        
+
         for (LayoutBase lb : m_layouts.values()) {
-	        Button curBut = new Button(lb.getName());
-	        curBut.setOnAction(new layoutEventHandler(lb));
-	        toolbar.getChildren().add(curBut);
+            Button curBut = new Button(lb.getName());
+            curBut.setOnAction(new layoutEventHandler(lb));
+            toolbar.getChildren().add(curBut);
         }
-        
+
         return toolbar;
     }
-    
-    private class layoutEventHandler implements EventHandler<ActionEvent> {
-    	LayoutBase m_lb = null;
-    	public layoutEventHandler(LayoutBase p_lb) {
-    		m_lb = p_lb;
-    	}
 
-		@Override
-		public void handle(ActionEvent arg0) {
-			try {
-				m_lb.executeLayout(m_buildConfigurations);
-			} catch (Exception e) {
-            	Alert alert = new Alert(AlertType.ERROR);
-            	alert.setTitle("Error Executing Layout");
-            	alert.setHeaderText("Layout " + m_lb.getName() + " failed");
-            	String alertText = e.getMessage();
-            	alert.setContentText(alertText);
+    private class layoutEventHandler implements EventHandler<ActionEvent> {
+        LayoutBase m_lb = null;
+
+        public layoutEventHandler(LayoutBase p_lb) {
+            m_lb = p_lb;
+        }
+
+        @Override
+        public void handle(ActionEvent arg0) {
+            try {
+                m_lb.executeLayout(m_buildConfigurations);
+            } catch (Exception e) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Executing Layout");
+                alert.setHeaderText("Layout " + m_lb.getName() + " failed");
+                String alertText = e.getMessage();
+                alert.setContentText(alertText);
                 alert.showAndWait();
-				e.printStackTrace();
-			}
-		}
-    	
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void createScene() {
@@ -167,37 +168,59 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         //r.setVisible(false); //dosen't work, with this set it was the same as if the rectangle wasn't drawn at all
         r.setFill(Color.TRANSPARENT); //used transparent instead
         m_root.getChildren().add(r);
-        
+
         m_scroll.setOnMousePressed(new MousePressedHandler());
     }
 
     private class MousePressedHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent arg0) {
-			clearAllContextMenus();
-		}
+        @Override
+        public void handle(MouseEvent arg0) {
+            clearAllContextMenus();
+        }
     }
 
     private Map<String, BuildConfigurationGroup> m_buildConfigurations = new HashMap<>();
 
     protected void AddDrawingToScene(Root p_docRoot) {
-    	try {
-	        createScene();
-	
-	        double initialposX = 60;
-	        double initialposY = 60;
-	        double initialpos_setupWidth = 100;
-	        double initialpos_setupHeight = 100;
-	
-	        int c = 0;
-	        for (BuildConfigurationType curBCXML : p_docRoot.getBuildConfigurations().getBuildConfiguration()) {
+        try {
+            createScene();
+
+            double initialposX = 60;
+            double initialposY = 60;
+            double initialpos_setupWidth = 100;
+            double initialpos_setupHeight = 100;
+
+            int c = 0;
+
+
+            Map<String, BuildConfiguration> buildConfigurationMap = new HashMap<>();
+            // First pass: create an object for each buildConfiguration
+            p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
+                    .forEach(buildConfigurationType -> buildConfigurationMap.put(buildConfigurationType.getName(), new BuildConfiguration(buildConfigurationType.getName())));
+
+            // Second pass: link the different buildConfigurations according to the dependency data
+            p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
+                    .forEach(buildConfigurationType -> {
+                        final BuildConfigurationType.Dependencies dependencies = buildConfigurationType.getDependencies();
+                        if (dependencies != null) {
+                            dependencies.getDependency().forEach(dependencyType -> {
+                                BuildConfiguration buildConfiguration = buildConfigurationMap.get(buildConfigurationType.getName());
+                                BuildConfiguration dependency = buildConfigurationMap.get(dependencyType.getBuildConfigurationName());
+                                buildConfiguration.addDependency(dependency);
+                            });
+                        }
+                    });
+
+
+            for (BuildConfigurationType curBCXML : p_docRoot.getBuildConfigurations().getBuildConfiguration()) {
                 BuildConfigurationGroup bc = new BuildConfigurationGroup(
+                        buildConfigurationMap.get(curBCXML.getName()),
                         curBCXML,
                         initialposX + (c * initialpos_setupWidth),
                         initialposY + (c * initialpos_setupHeight),
                         this
                 );
-	            m_root.getChildren().add(bc);
+                m_root.getChildren().add(bc);
 
                 BuildConfigurationGroup foundBC = m_buildConfigurations.get(curBCXML.getName());
                 if (foundBC != null)
@@ -206,14 +229,14 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 
                 c++;
             }
-	
-	        //Following code for testing
-	        //Marshaller m = jaxbContext.createMarshaller();
-	        //m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	        ////lets us use             m.marshal( curBC.getXMLType(), System.out );
-	        //End testing code
-	
-	        //Second pass - go through all configurations and add dependencies
+
+            //Following code for testing
+            //Marshaller m = jaxbContext.createMarshaller();
+            //m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            ////lets us use             m.marshal( curBC.getXMLType(), System.out );
+            //End testing code
+
+            //Second pass - go through all configurations and add dependencies
             for (BuildConfigurationGroup curBC : m_buildConfigurations.values()) {
                 if (curBC.getXMLType().getDependencies() != null) {
                     for (DependencyType curDepXML : curBC.getXMLType().getDependencies().getDependency()) {
@@ -229,28 +252,28 @@ public abstract class BuildHotspotsApplicationBase extends Application {
                     }
                 }
             }
-	        
-	        //TODO Future version will replace this with code to load state rather then preform layout
-	        LayoutBase lo = this.m_layouts.get("Original");
-	        lo.executeLayout(m_buildConfigurations);
 
-    	} catch (Exception e) {
-    		e.printStackTrace();
-        	Alert alert = new Alert(AlertType.INFORMATION);
-        	alert.setTitle("Exception drawing scehe");
-        	alert.setHeaderText(e.getMessage());
-        	String s = "";
-        	for (int c=0;c<e.getStackTrace().length;c++) {
-        		s+= e.getStackTrace()[c].toString() + System.getProperty("line.separator");
-        	}
-        	alert.setContentText(s);
+            //TODO Future version will replace this with code to load state rather then preform layout
+            LayoutBase lo = this.m_layouts.get("Original");
+            lo.executeLayout(m_buildConfigurations);
 
-        	alert.setResizable(true);
-        	alert.getDialogPane().setPrefSize(680, 320);
-        	
-        	alert.showAndWait();    
-        	m_primaryStage.close();
-    	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Exception drawing scehe");
+            alert.setHeaderText(e.getMessage());
+            String s = "";
+            for (int c = 0; c < e.getStackTrace().length; c++) {
+                s += e.getStackTrace()[c].toString() + System.getProperty("line.separator");
+            }
+            alert.setContentText(s);
+
+            alert.setResizable(true);
+            alert.getDialogPane().setPrefSize(680, 320);
+
+            alert.showAndWait();
+            m_primaryStage.close();
+        }
     }
 
     /*
@@ -291,11 +314,9 @@ public abstract class BuildHotspotsApplicationBase extends Application {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
             }
-
         };
+
         at.start();
     }
 
@@ -308,33 +329,32 @@ public abstract class BuildHotspotsApplicationBase extends Application {
      * lots of comments here as coding this made my head hurt
      */
     private void scrollTo(Point2D p_windowPos, Point2D p_canvasPos) {
-    	double scale = m_root.getScaleX();
-    	//this code currently dosen't work.
-    	//it seems to behave correctly when the xscrollbar is at the left most but it is wanders off target
-    	//as we zoom in and out. It needs looking at
-    	
-    	//System.out.println(" window X:" + p_windowPos.getX());
-    	//System.out.println(" canvas X:" + p_canvasPos.getX());
-    	//System.out.println(" scale:" + scale);
-    	
-    	//System.out.println("Canvas:" + m_root.getBoundsInLocal().getWidth());
-    	
-    	//The area the window takes up in canvas co-ords
-    	//System.out.println("Scroll Width on canvas:" + (m_scroll.getWidth() / scale));
-    	
-    	//xTotalScrollRange in canvas co-ordinates
-    	double xTotalScrollRange =  m_root.getBoundsInLocal().getWidth() - (m_scroll.getWidth() / scale);
-    	
-    	double xOffscreen = p_canvasPos.getX() - (p_windowPos.getX() / scale);
-    	if (xOffscreen<0) xOffscreen = 0;
+        double scale = m_root.getScaleX();
+        //this code currently dosen't work.
+        //it seems to behave correctly when the xscrollbar is at the left most but it is wanders off target
+        //as we zoom in and out. It needs looking at
 
-    	m_scroll.setHvalue(xOffscreen / xTotalScrollRange);
-    
-    	
-    	
-    	//Y code below - should mirror first bit
-    	double yTotalScrollRange =  m_root.getBoundsInLocal().getHeight() - (m_scroll.getHeight() / scale);
-    	double yOffscreen = p_canvasPos.getY() - (p_windowPos.getY() / scale);
+        //System.out.println(" window X:" + p_windowPos.getX());
+        //System.out.println(" canvas X:" + p_canvasPos.getX());
+        //System.out.println(" scale:" + scale);
+
+        //System.out.println("Canvas:" + m_root.getBoundsInLocal().getWidth());
+
+        //The area the window takes up in canvas co-ords
+        //System.out.println("Scroll Width on canvas:" + (m_scroll.getWidth() / scale));
+
+        //xTotalScrollRange in canvas co-ordinates
+        double xTotalScrollRange = m_root.getBoundsInLocal().getWidth() - (m_scroll.getWidth() / scale);
+
+        double xOffscreen = p_canvasPos.getX() - (p_windowPos.getX() / scale);
+        if (xOffscreen < 0) xOffscreen = 0;
+
+        m_scroll.setHvalue(xOffscreen / xTotalScrollRange);
+
+
+        //Y code below - should mirror first bit
+        double yTotalScrollRange = m_root.getBoundsInLocal().getHeight() - (m_scroll.getHeight() / scale);
+        double yOffscreen = p_canvasPos.getY() - (p_windowPos.getY() / scale);
         if (yOffscreen < 0) yOffscreen = 0;
         m_scroll.setVvalue(yOffscreen / yTotalScrollRange);
 
@@ -348,16 +368,16 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         @Override
         public void handle(ScrollEvent scrollEvent) {
             if (scrollEvent.isControlDown()) {
-            	
-            	Point2D mousePos = new Point2D(scrollEvent.getSceneX(),scrollEvent.getSceneY());
-            	Point2D scenePositionToCentreZoomAround = m_root.sceneToLocal(new Point2D( scrollEvent.getSceneX(),scrollEvent.getSceneY()));
+
+                Point2D mousePos = new Point2D(scrollEvent.getSceneX(), scrollEvent.getSceneY());
+                Point2D scenePositionToCentreZoomAround = m_root.sceneToLocal(new Point2D(scrollEvent.getSceneX(), scrollEvent.getSceneY()));
 
                 final double scale = calculateScale(scrollEvent);
                 m_root.setScaleX(scale);
                 m_root.setScaleY(scale);
 
                 scrollTo(mousePos, scenePositionToCentreZoomAround);
-                
+
                 scrollEvent.consume();
             }
         }
@@ -386,11 +406,11 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         return !m_scroll.isPannable();
     }
 
-	public Node getScrollPane() {
-		return m_scroll;
-	}
+    public Node getScrollPane() {
+        return m_scroll;
+    }
 
-	public void clearAllContextMenus() {
+    public void clearAllContextMenus() {
         for (BuildConfigurationGroup bc : m_buildConfigurations.values()) {
             bc.clearContextMenu();
         }

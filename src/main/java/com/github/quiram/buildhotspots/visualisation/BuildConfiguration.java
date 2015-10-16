@@ -45,4 +45,18 @@ public class BuildConfiguration {
     public String getName() {
         return name;
     }
+
+    public int getRelevantDepth() {
+        return dependencies.stream().
+                filter(BuildConfiguration::isRelevant).
+                mapToInt(dependency -> 1 + dependency.getRelevantDepth()).
+                max().orElse(0);
+    }
+
+    public int getRelevantDependentDepth() {
+        return dependents.stream().
+                filter(BuildConfiguration::isRelevant).
+                mapToInt(dependency -> 1 + dependency.getRelevantDependentDepth()).
+                max().orElse(0);
+    }
 }
