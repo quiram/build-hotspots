@@ -195,7 +195,8 @@ public abstract class BuildHotspotsApplicationBase extends Application {
             Map<String, BuildConfiguration> buildConfigurationMap = new HashMap<>();
             // First pass: create an object for each buildConfiguration
             p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
-                    .forEach(buildConfigurationType -> buildConfigurationMap.put(buildConfigurationType.getName(), new BuildConfiguration(buildConfigurationType.getName())));
+                    .forEach(buildConfigurationType -> buildConfigurationMap.put(buildConfigurationType.getName(),
+                            new BuildConfiguration(buildConfigurationType.getName(), buildConfigurationType.getBuildStats().getPercentage())));
 
             // Second pass: link the different buildConfigurations according to the dependency data
             p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
@@ -214,7 +215,6 @@ public abstract class BuildHotspotsApplicationBase extends Application {
             for (BuildConfigurationType curBCXML : p_docRoot.getBuildConfigurations().getBuildConfiguration()) {
                 BuildConfigurationGroup bc = new BuildConfigurationGroup(
                         buildConfigurationMap.get(curBCXML.getName()),
-                        curBCXML,
                         initialposX + (c * initialpos_setupWidth),
                         initialposY + (c * initialpos_setupHeight),
                         this
@@ -230,6 +230,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
             }
 
             // Register Dependency Links for visualisation
+            //noinspection CodeBlock2Expr
             buildConfigurationMap.values().forEach(buildConfiguration -> {
                 buildConfiguration.getDependencies().forEach(dependency -> {
                     BuildConfigurationGroup currentBuildConfigurationGroup = m_buildConfigurations.get(buildConfiguration.getName());

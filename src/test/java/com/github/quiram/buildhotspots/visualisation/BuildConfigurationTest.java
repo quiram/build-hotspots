@@ -113,7 +113,7 @@ public class BuildConfigurationTest {
     }
 
     protected BuildConfiguration getBuildConfiguration() {
-        return new BuildConfiguration("my build");
+        return new BuildConfiguration("my build", 50);
     }
 
     @Test
@@ -159,5 +159,12 @@ public class BuildConfigurationTest {
 
         assertEquals(1, a.getRelevantDepth());
         assertEquals(2, c.getRelevantDependentDepth());
+    }
+
+    @Test
+    public void frequencyCanBeRetrieved() {
+        final BuildConfiguration buildConfiguration = new BuildConfiguration("a build", 20);
+
+        assertEquals(20, buildConfiguration.getFrequency());
     }
 }

@@ -10,9 +10,11 @@ public class BuildConfiguration {
     private Set<BuildConfiguration> dependents = new HashSet<>();
     private boolean relevant = true;
     private final String name;
+    private int frequency;
 
-    public BuildConfiguration(String name) {
+    public BuildConfiguration(String name, int frequency) {
         this.name = name;
+        this.frequency = frequency;
     }
 
     public void addDependency(BuildConfiguration dependency) {
@@ -58,5 +60,9 @@ public class BuildConfiguration {
                 filter(BuildConfiguration::isRelevant).
                 mapToInt(dependency -> 1 + dependency.getRelevantDependentDepth()).
                 max().orElse(0);
+    }
+
+    public int getFrequency() {
+        return frequency;
     }
 }

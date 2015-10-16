@@ -1,6 +1,5 @@
 package com.github.quiram.buildhotspots.visualisation;
 
-import com.github.quiram.buildhotspots.drawingdata.BuildConfigurationType;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -31,23 +30,18 @@ public class BuildConfigurationGroup extends Group {
     private final BuildConfiguration buildConfiguration;
     private BuildHotspotsApplicationBase m_App = null;
     private Circle m_circle = null;
-    private BuildConfigurationType m_xmlBC = null;
     private final ContextMenu m_contextMenu = new ContextMenu();
     private MenuItem m_hide = new MenuItem("Hide"); //exposed as we need to dynamically show/hide this menu item when the context menu is displayed
     private Set<DependencyLink> dependencyLinks = new HashSet<>();
 
     public BuildConfigurationGroup(
-            BuildConfiguration buildConfiguration, BuildConfigurationType p_xmlBC,
+            BuildConfiguration buildConfiguration,
             double p_xPos,
             double p_yPos,
             BuildHotspotsApplicationBase p_App
     ) throws Exception {
         this.buildConfiguration = buildConfiguration;
         m_App = p_App;
-        m_xmlBC = p_xmlBC;
-
-        if (m_xmlBC.getBuildStats() == null)
-            throw new Exception("There were no build stats attached to " + m_xmlBC.getName());
 
         setLayoutX(p_xPos);
         setLayoutY(p_yPos);
@@ -59,7 +53,7 @@ public class BuildConfigurationGroup extends Group {
         getChildren().add(m_circle);
 
         HBox hb = new HBox();
-        Label t = new Label(m_xmlBC.getName());
+        Label t = new Label(buildConfiguration.getName());
         
         /*
          * this section commented out
@@ -114,13 +108,13 @@ public class BuildConfigurationGroup extends Group {
         info.setOnAction(event -> {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Information for Build Configuration");
-            alert.setHeaderText("Name: " + m_xmlBC.getName());
+            alert.setHeaderText("Name: " + buildConfiguration.getName());
             String alertText = "";
             alertText += "Dependent Builds: " + join(",", getNamesOfDependents()) + NEW_LINE;
             alertText += "Dependent Depth: " + getDependentDepth() + NEW_LINE;
             alertText += "Dependencies: " + join(",", getNamesOfDependencies()) + NEW_LINE;
             alertText += "Dependency Depth: " + getDependencyDepth() + NEW_LINE;
-            alertText += "Percentage: " + m_xmlBC.getBuildStats().getPercentage() + "%" + NEW_LINE;
+            alertText += "Percentage: " + buildConfiguration.getFrequency() + "%" + NEW_LINE;
             alert.setContentText(alertText);
             alert.getDialogPane().setPrefSize(680, 320);
             alert.setResizable(true);
