@@ -9,6 +9,11 @@ public class BuildConfiguration {
     private Set<BuildConfiguration> dependencies = new HashSet<>();
     private Set<BuildConfiguration> dependents = new HashSet<>();
     private boolean relevant = true;
+    private final String name;
+
+    public BuildConfiguration(String name) {
+        this.name = name;
+    }
 
     public void addDependency(BuildConfiguration dependency) {
         dependencies.add(dependency);
@@ -35,5 +40,9 @@ public class BuildConfiguration {
 
     public void setRelevant(boolean relevant) {
         this.relevant = relevant;
+    }
+
+    public String getName() {
+        return name;
     }
 }
