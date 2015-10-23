@@ -53,15 +53,19 @@ public class DependencyWalkLayout extends LayoutBase{
             for (String dependencyName : m_bc.getNamesOfDependencies()) {
                 BuildConfigWrapper othW = bcList.get(dependencyName);
                 if (othW==this) throw new Exception("Logical Error");
-                if (othW == null) throw new Exception("Logical error");
-                if (othW.getGraphID() == -1) othW.allocateGraphID(p_graphID);
+                //If othW is null then the other object does not need to be graphed - probably because it is hidden
+                if (othW != null) {
+                	if (othW.getGraphID() == -1) othW.allocateGraphID(p_graphID);
+                }
             }
 
             for (String dependentName : m_bc.getNamesOfDependents()) {
                 BuildConfigWrapper othW = bcList.get(dependentName);
                 if (othW==this) throw new Exception("Logical Error");
-                if (othW == null) throw new Exception("Logical error");
-                if (othW.getGraphID() == -1) othW.allocateGraphID(p_graphID);
+                //If othW is null then the other object does not need to be graphed - probably because it is hidden
+                if (othW != null) {
+                    if (othW.getGraphID() == -1) othW.allocateGraphID(p_graphID);
+                }
             }
         }
 
