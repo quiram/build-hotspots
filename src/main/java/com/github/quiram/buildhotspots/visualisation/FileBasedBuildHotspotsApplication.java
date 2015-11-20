@@ -1,8 +1,6 @@
 package com.github.quiram.buildhotspots.visualisation;
 
 import com.github.quiram.buildhotspots.drawingdata.Root;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -32,24 +30,13 @@ public class FileBasedBuildHotspotsApplication extends BuildHotspotsApplicationB
         }
     }
 
-    protected void browse() {
-        Alert alert = new Alert(AlertType.INFORMATION);
-    	alert.setTitle("Browse for File");
-    	alert.setHeaderText("Browse for xml file");
-    	alert.setContentText("Browse not yet implemented");
-
-    	alert.showAndWait();
-    }
-
-    protected String getDefaultPromptValue() {
-        return "very-large-system.xml";
-    }
-
     protected String getTitle() {
         return "Build Hotspots - Draw from File";
     }
 
-    protected String getPromptLabel() {
-        return "Please specify file name:";
+    @Override
+    protected SourceSelector getSourceSelector() {
+        return new FileSourceSelector();
     }
+
 }

@@ -20,22 +20,12 @@ public class JenkinsBasedBuildHotspotsApplication extends BuildHotspotsApplicati
     }
 
     @Override
-    protected void browse() {
-        throw new UnsupportedOperationException("Cannot browse.");
-    }
-
-    @Override
-    protected String getPromptLabel() {
-        return "Start by pointing at your Jenkins instance:";
-    }
-
-    @Override
-    protected String getDefaultPromptValue() {
-        return "run";
-    }
-
-    @Override
     protected String getTitle() {
         return "Build Hotspots - Draw from Jenkins";
+    }
+
+    @Override
+    protected SourceSelector getSourceSelector() {
+        return new UrlSourceSelector();
     }
 }

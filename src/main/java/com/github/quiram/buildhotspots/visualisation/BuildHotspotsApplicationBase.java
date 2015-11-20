@@ -341,36 +341,23 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         Scene scene = new Scene(grid, 300, 275);
         m_primaryStage.setScene(scene);
 
-        Label label = new Label(getPromptLabel());
-        label.setMinWidth(400);
-        //TextField textField = new TextField("drawingDataExample001.xml");
-        TextField textField = new TextField(getDefaultPromptValue());
+        SourceSelector sourceSelector = getSourceSelector();
 
         Button btn = new Button();
         btn.setText("Select builds");
-        btn.setOnAction(event -> selectBuilds(getRootDocument(textField.getText())));
+        btn.setOnAction(event -> selectBuilds(getRootDocument(sourceSelector.getSource())));
 
-        Button btnBrowse = new Button();
-        btnBrowse.setText("...");
-        btnBrowse.setOnAction(event -> browse());
-
-        grid.add(label, 0, 0);
-        grid.add(textField, 0, 1);
-        grid.add(btnBrowse, 1, 1);
-        grid.add(btn, 0, 2);
+        grid.add(sourceSelector, 0, 0);
+        grid.add(btn, 0, 1);
 
         m_primaryStage.show();
     }
 
     protected abstract String getTitle();
 
-    protected abstract String getPromptLabel();
-
-    protected abstract String getDefaultPromptValue();
+    protected abstract SourceSelector getSourceSelector();
 
     protected abstract Root getRootDocument(String source);
-
-    protected abstract void browse();
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
