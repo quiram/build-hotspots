@@ -8,7 +8,7 @@ import static java.util.Collections.unmodifiableSet;
 public class BuildConfiguration {
     private Set<BuildConfiguration> dependencies = new HashSet<>();
     private Set<BuildConfiguration> dependents = new HashSet<>();
-    private boolean relevant = true;
+    private boolean relevant = false;
     private final String name;
     private int frequency;
 
@@ -64,5 +64,20 @@ public class BuildConfiguration {
 
     public int getFrequency() {
         return frequency;
+    }
+
+    public void setRelevantTransitively(boolean relevant) {
+        setRelevantForTransitiveDependencies(relevant);
+        setRelevantForTransitiveDependents(relevant);
+    }
+
+    private void setRelevantForTransitiveDependencies(boolean relevant) {
+        this.relevant = relevant;
+        dependencies.forEach(buildConfiguration -> buildConfiguration.setRelevantForTransitiveDependencies(relevant));
+    }
+
+    private void setRelevantForTransitiveDependents(boolean relevant) {
+        this.relevant = relevant;
+        dependents.forEach(buildConfiguration -> buildConfiguration.setRelevantForTransitiveDependents(relevant));
     }
 }

@@ -1,17 +1,20 @@
 package com.github.quiram.buildhotspots.visualisation.layouts;
 
 import com.github.quiram.buildhotspots.visualisation.BuildConfigurationGroup;
+import javafx.scene.Node;
 
 import java.util.Map;
 
 public class OriginalLayout extends LayoutBase {
 
-	public OriginalLayout() {
-		super("Original");
-	}
+    public static final String ORIGINAL_LAYOUT = "Original";
+
+    public OriginalLayout() {
+        super(ORIGINAL_LAYOUT);
+    }
 
 	@Override
-    public void executeLayout(Map<String, BuildConfigurationGroup> p_buildConfigurations) throws Exception {
+    public void executeLayout(Map<String, BuildConfigurationGroup> p_buildConfigurationGroups) throws Exception {
         double initialposX = 160;
         double initialposY = 160;
         double initialpos_setupWidth = 180;
@@ -21,7 +24,7 @@ public class OriginalLayout extends LayoutBase {
         final int MAX_DEPTH = 100;
         int[] depthCounter = new int[MAX_DEPTH];
 
-        p_buildConfigurations.values().forEach(b -> {
+        p_buildConfigurationGroups.values().stream().filter(Node::isVisible).forEach(b -> {
             final int depth = b.getDependencyDepth();
             double x = initialposX + depth * initialpos_setupWidth;
             double y = initialposY + depthCounter[depth] * initialpos_setupHeight;
@@ -36,7 +39,4 @@ public class OriginalLayout extends LayoutBase {
             depthCounter[depth]++;
         });
 	}
-
-	
-	
 }

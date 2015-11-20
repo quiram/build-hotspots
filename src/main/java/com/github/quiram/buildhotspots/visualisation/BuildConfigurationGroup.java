@@ -206,21 +206,17 @@ public class BuildConfigurationGroup extends Group {
     }
 
     public void hide() throws Exception {
-        if (getNumDirectParents() != 0) throw new Exception("Can't hide");
-
         buildConfiguration.setRelevant(false);
-
-        dependencyLinks.forEach(dependencyLink -> dependencyLink.setVisible(false));
-
         this.setVisible(false);
+
+        dependencyLinks.forEach(DependencyLink::adjustVisibility);
     }
 
     public void unhide() throws Exception {
         buildConfiguration.setRelevant(true);
-
-        dependencyLinks.forEach(dependencyLink -> dependencyLink.setVisible(true));
-
         this.setVisible(true);
+
+        dependencyLinks.forEach(DependencyLink::adjustVisibility);
     }
 
     private class MousePressedHandler implements EventHandler<MouseEvent> {

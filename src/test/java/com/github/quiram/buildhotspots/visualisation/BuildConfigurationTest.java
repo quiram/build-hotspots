@@ -4,8 +4,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BuildConfigurationTest {
     @Test
@@ -101,9 +100,9 @@ public class BuildConfigurationTest {
     }
 
     @Test
-    public void buildsAreRelevantByDefault() {
+    public void buildsAreIrrelevantByDefault() {
         final BuildConfiguration a = getBuildConfiguration();
-        assertTrue(a.isRelevant());
+        assertFalse(a.isRelevant());
     }
 
     @Test
@@ -130,6 +129,7 @@ public class BuildConfigurationTest {
 
         a.addDependency(b);
         a.setRelevant(false);
+        b.setRelevant(true);
 
         assertEquals(1, a.getRelevantDepth());
         assertEquals(0, b.getRelevantDependentDepth());
@@ -139,6 +139,7 @@ public class BuildConfigurationTest {
     public void relevantDepthIgnoresDependencyIfIrrelevant() {
         final BuildConfiguration a = getBuildConfiguration();
         final BuildConfiguration b = getBuildConfiguration();
+        a.setRelevant(true);
         b.setRelevant(false);
 
         a.addDependency(b);
@@ -155,6 +156,8 @@ public class BuildConfigurationTest {
 
         a.addDependency(b);
         b.addDependency(c);
+        a.setRelevant(true);
+        b.setRelevant(true);
         c.setRelevant(false);
 
         assertEquals(1, a.getRelevantDepth());
@@ -166,5 +169,61 @@ public class BuildConfigurationTest {
         final BuildConfiguration buildConfiguration = new BuildConfiguration("a build", 20);
 
         assertEquals(20, buildConfiguration.getFrequency());
+    }
+
+    @Test
+    public void setRelevanceTransitively() {
+        final BuildConfiguration a = getBuildConfiguration();
+        a.setRelevantTransitively(true);
+
+        assertTrue(a.isRelevant());
+    }
+
+    @Test
+    public void setRelevanceTransitivelyChangesDirectDependency() {
+        final BuildConfiguration a = getBuildConfiguration();
+        final BuildConfiguration b = getBuildConfiguration();
+
+        a.addDependency(b);
+        a.setRelevantTransitively(true);
+
+        assertTrue(b.isRelevant());
+    }
+
+    @Test
+    public void setRelevanceTransitivelyChangesIndirectDependency() {
+        final BuildConfiguration a = getBuildConfiguration();
+        final BuildConfiguration b = getBuildConfiguration();
+        final BuildConfiguration c = getBuildConfiguration();
+
+        a.addDependency(b);
+        b.addDependency(c);
+        a.setRelevantTransitively(true);
+
+        assertTrue(c.isRelevant());
+    }
+
+    @Test
+    public void setRelevantTransitivelyChangesDirectDependant() {
+        final BuildConfiguration a = getBuildConfiguration();
+        final BuildConfiguration b = getBuildConfiguration();
+
+        a.addDependency(b);
+        b.setRelevantTransitively(true);
+
+        assertTrue(a.isRelevant());
+    }
+
+    @Test
+    public void setRelevantTransitivelyChangesInirectDependant() {
+        final BuildConfiguration a = getBuildConfiguration();
+        final BuildConfiguration b = getBuildConfiguration();
+        final BuildConfiguration c = getBuildConfiguration();
+
+        a.addDependency(b);
+        b.addDependency(c);
+        c.setRelevantTransitively(true);
+
+        assertTrue(a.isRelevant());
     }
 }

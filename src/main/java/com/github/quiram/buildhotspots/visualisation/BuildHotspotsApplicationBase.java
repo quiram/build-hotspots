@@ -7,26 +7,29 @@ import com.github.quiram.buildhotspots.visualisation.layouts.LayoutBase;
 import com.github.quiram.buildhotspots.visualisation.layouts.OriginalLayout;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -34,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.github.quiram.buildhotspots.visualisation.layouts.OriginalLayout.ORIGINAL_LAYOUT;
 
 /*
  * Test class added by RJM to add some prototype code
@@ -45,6 +50,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
     private final Group m_root = new Group();
     private ScrollPane m_scroll = null;
     private Map<String, LayoutBase> m_layouts = null; //List of supported layouts
+    private Map<String, BuildConfiguration> buildConfigurationMap;
 
     public BuildHotspotsApplicationBase() {
         m_layouts = new HashMap<>();
@@ -180,6 +186,54 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 
     private Map<String, BuildConfigurationGroup> m_buildConfigurations = new HashMap<>();
 
+    protected void selectBuilds(Root p_docRoot) {
+        buildConfigurationMap = createBuildConfigurationMap(p_docRoot);
+
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+
+        BorderPane listOfBuilds = getListOfBuildsPane();
+        grid.add(listOfBuilds, 0, 0);
+        Scene scene = new Scene(grid, 250, 400);
+
+        m_primaryStage.setScene(scene);
+
+        Button btn = new Button();
+        btn.setText("Show me hotspots!");
+        btn.setOnAction(event -> AddDrawingToScene(p_docRoot));
+
+        grid.add(btn, 0, 1);
+    }
+
+    private BorderPane getListOfBuildsPane() {
+        ListView<BuildConfigurationCheckBox> listView = new ListView<>();
+
+        buildConfigurationMap.keySet().stream().sorted().forEach(buildConfigurationName ->
+        {
+            BuildConfigurationCheckBox buildConfigurationCheckBox = new BuildConfigurationCheckBox(buildConfigurationMap.get(buildConfigurationName), false);
+
+            // observe checkbox's on property and display message if it changes:
+            buildConfigurationCheckBox.onProperty().addListener((obs, wasOn, isNowOn) -> {
+                System.out.println(buildConfigurationCheckBox.getName() + " changed on state from " + wasOn + " to " + isNowOn);
+            });
+
+            listView.getItems().add(buildConfigurationCheckBox);
+        });
+
+        listView.setCellFactory(CheckBoxListCell.forListView(new Callback<BuildConfigurationCheckBox, ObservableValue<Boolean>>() {
+            @Override
+            public ObservableValue<Boolean> call(BuildConfigurationCheckBox buildConfigurationCheckBox) {
+                return buildConfigurationCheckBox.onProperty();
+            }
+        }));
+
+        return new BorderPane(listView);
+    }
+
     protected void AddDrawingToScene(Root p_docRoot) {
         try {
             createScene();
@@ -189,36 +243,21 @@ public abstract class BuildHotspotsApplicationBase extends Application {
             double initialpos_setupWidth = 100;
             double initialpos_setupHeight = 100;
 
+            // Create BuildConfigurationGroups
             int c = 0;
-
-
-            Map<String, BuildConfiguration> buildConfigurationMap = new HashMap<>();
-            // First pass: create an object for each buildConfiguration
-            p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
-                    .forEach(buildConfigurationType -> buildConfigurationMap.put(buildConfigurationType.getName(),
-                            new BuildConfiguration(buildConfigurationType.getName(), buildConfigurationType.getBuildStats().getPercentage())));
-
-            // Second pass: link the different buildConfigurations according to the dependency data
-            p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
-                    .forEach(buildConfigurationType -> {
-                        final BuildConfigurationType.Dependencies dependencies = buildConfigurationType.getDependencies();
-                        if (dependencies != null) {
-                            dependencies.getDependency().forEach(dependencyType -> {
-                                BuildConfiguration buildConfiguration = buildConfigurationMap.get(buildConfigurationType.getName());
-                                BuildConfiguration dependency = buildConfigurationMap.get(dependencyType.getBuildConfigurationName());
-                                buildConfiguration.addDependency(dependency);
-                            });
-                        }
-                    });
-
-
             for (BuildConfigurationType curBCXML : p_docRoot.getBuildConfigurations().getBuildConfiguration()) {
+                final BuildConfiguration buildConfiguration = buildConfigurationMap.get(curBCXML.getName());
                 BuildConfigurationGroup bc = new BuildConfigurationGroup(
-                        buildConfigurationMap.get(curBCXML.getName()),
+                        buildConfiguration,
                         initialposX + (c * initialpos_setupWidth),
                         initialposY + (c * initialpos_setupHeight),
                         this
                 );
+
+                if (!buildConfiguration.isRelevant()) {
+                    bc.hide();
+                }
+
                 m_root.getChildren().add(bc);
 
                 BuildConfigurationGroup foundBC = m_buildConfigurations.get(curBCXML.getName());
@@ -243,13 +282,12 @@ public abstract class BuildHotspotsApplicationBase extends Application {
             });
 
             //TODO Future version will replace this with code to load state rather then preform layout
-            LayoutBase lo = this.m_layouts.get("Original");
+            LayoutBase lo = this.m_layouts.get(ORIGINAL_LAYOUT);
             lo.executeLayout(m_buildConfigurations);
-
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Exception drawing scehe");
+            alert.setTitle("Exception drawing scene");
             alert.setHeaderText(e.getMessage());
             String s = "";
             for (int c = 0; c < e.getStackTrace().length; c++) {
@@ -265,10 +303,74 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         }
     }
 
+    private Map<String, BuildConfiguration> createBuildConfigurationMap(Root p_docRoot) {
+        Map<String, BuildConfiguration> buildConfigurationMap = new HashMap<>();
+        // First pass: create an object for each buildConfiguration
+        p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
+                .forEach(buildConfigurationType -> buildConfigurationMap.put(buildConfigurationType.getName(),
+                        new BuildConfiguration(buildConfigurationType.getName(), buildConfigurationType.getBuildStats().getPercentage())));
+
+        // Second pass: link the different buildConfigurations according to the dependency data
+        p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
+                .forEach(buildConfigurationType -> {
+                    final BuildConfigurationType.Dependencies dependencies = buildConfigurationType.getDependencies();
+                    if (dependencies != null) {
+                        dependencies.getDependency().forEach(dependencyType -> {
+                            BuildConfiguration buildConfiguration = buildConfigurationMap.get(buildConfigurationType.getName());
+                            BuildConfiguration dependency = buildConfigurationMap.get(dependencyType.getBuildConfigurationName());
+                            buildConfiguration.addDependency(dependency);
+                        });
+                    }
+                });
+        return buildConfigurationMap;
+    }
+
     /*
      * Allow use to have a generic selection scene - different for file and jenkins
      */
-    abstract protected void showDrawingSelectionScene() throws Exception;
+    protected void showDrawingSelectionScene() throws Exception {
+        m_primaryStage.setWidth(500); //Set up initial window width
+        m_primaryStage.setTitle(getTitle());
+
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+        Scene scene = new Scene(grid, 300, 275);
+        m_primaryStage.setScene(scene);
+
+        Label label = new Label(getPromptLabel());
+        label.setMinWidth(400);
+        //TextField textField = new TextField("drawingDataExample001.xml");
+        TextField textField = new TextField(getDefaultPromptValue());
+
+        Button btn = new Button();
+        btn.setText("Select builds");
+        btn.setOnAction(event -> selectBuilds(getRootDocument(textField.getText())));
+
+        Button btnBrowse = new Button();
+        btnBrowse.setText("...");
+        btnBrowse.setOnAction(event -> browse());
+
+        grid.add(label, 0, 0);
+        grid.add(textField, 0, 1);
+        grid.add(btnBrowse, 1, 1);
+        grid.add(btn, 0, 2);
+
+        m_primaryStage.show();
+    }
+
+    protected abstract String getTitle();
+
+    protected abstract String getPromptLabel();
+
+    protected abstract String getDefaultPromptValue();
+
+    protected abstract Root getRootDocument(String source);
+
+    protected abstract void browse();
 
     @Override
     public void start(final Stage primaryStage) throws Exception {

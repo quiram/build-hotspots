@@ -33,6 +33,10 @@ public class DependencyLink extends Group {
         target.registerDependencyLink(this);
     }
 
+    public void adjustVisibility() {
+        setVisible(target.isVisible() && origin.isVisible());
+    }
+
     class ArrowHead extends Group {
         Line m_l1 = new Line();
         Line m_l2 = new Line();
@@ -89,7 +93,7 @@ public class DependencyLink extends Group {
     }
 
     public void Draw() {
-
+        adjustVisibility();
         Point2D sourceCentre = new Point2D(target.getLayoutX(), target.getLayoutY());
         Point2D targetCentre = new Point2D(origin.getLayoutX(), origin.getLayoutY());
 
