@@ -17,16 +17,16 @@ There are currently two ways to run BuildHotspots:
 
 Sure thing, here you go:
 
-1. Download a copy of BuildHotspots
+Download a copy of BuildHotspots
 ```bash
 git clone https://github.com/quiram/build-hotspots.git
 ```
-1. Build it
+Build it
 ```
 cd build-hotspots
 mvn clean verify
 ```
-1. Run it
+Run it
 ```
 cd target
 java -cp buildhotspots-1.0-SNAPSHOT.jar com.github.quiram.buildhotspots.visualisation.JenkinsBasedBuildHotspotsApplication
@@ -36,9 +36,10 @@ java -cp buildhotspots-1.0-SNAPSHOT.jar com.github.quiram.buildhotspots.visualis
 ### "This application is buggy as f***"
 
 Yeah, you're probably right. There are three things to take into account though:
+
 1. I haven't used JavaFX before. Nor Swing. Nor I have any experience programming graphical interfaces.
-1. I have very little time to work on this.
-1. This application is still _very_ young, at the moment I'm favouring new features over stability.
+2. I have very little time to work on this.
+3. This application is still _very_ young, at the moment I'm favouring new features over stability.
 
 So, if you find it frustrating, please be patient. Or even better, please help :)
 
