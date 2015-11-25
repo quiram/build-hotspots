@@ -13,6 +13,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +56,8 @@ public class BuildConfigurationGroup extends Group {
 
         HBox hb = new HBox();
         Label t = new Label(buildConfiguration.getName());
+        t.setTextFill(Color.WHITE);
+        t.setFont(Font.font(null, FontWeight.BOLD, 14));
         
         /*
          * this section commented out
