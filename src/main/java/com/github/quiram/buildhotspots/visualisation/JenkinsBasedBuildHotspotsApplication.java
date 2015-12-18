@@ -1,5 +1,6 @@
 package com.github.quiram.buildhotspots.visualisation;
 
+import com.github.quiram.buildhotspots.DateToFrequencyTransformer;
 import com.github.quiram.buildhotspots.DrawingBuilder;
 import com.github.quiram.buildhotspots.clients.jenkins.beans.JenkinsClient;
 import com.github.quiram.buildhotspots.drawingdata.Root;
@@ -15,7 +16,7 @@ public class JenkinsBasedBuildHotspotsApplication extends BuildHotspotsApplicati
     protected Root getRootDocument(String source) {
         JenkinsClient jenkinsClient = new JenkinsClient(source);
 
-        DrawingBuilder drawingBuilder = new DrawingBuilder(jenkinsClient);
+        DrawingBuilder drawingBuilder = new DrawingBuilder(jenkinsClient, new DateToFrequencyTransformer());
         return drawingBuilder.build();
     }
 
