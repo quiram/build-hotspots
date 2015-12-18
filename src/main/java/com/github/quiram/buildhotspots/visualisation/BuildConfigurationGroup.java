@@ -48,8 +48,8 @@ public class BuildConfigurationGroup extends Group {
 
         int circleRadius = 50;
 
-        //TODO Code to change colour of circle dependent on percentage
-        m_circle = new Circle(circleRadius, Color.web("blue", 1));
+        final Color buildColor = new ColorGradient().getColourPoint(buildConfiguration.getFrequency());
+        m_circle = new Circle(circleRadius, buildColor);
         getChildren().add(m_circle);
 
         HBox hb = new HBox();
