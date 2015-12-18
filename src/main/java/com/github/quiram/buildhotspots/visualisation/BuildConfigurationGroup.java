@@ -20,6 +20,9 @@ import java.util.Set;
 
 import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
+import static javafx.scene.paint.Color.WHITE;
+import static javafx.scene.text.Font.font;
+import static javafx.scene.text.FontWeight.BOLD;
 
 /*
  * Class to represent a build configuration. It holds the JavaFX objects used to display this build configuration 
@@ -54,7 +57,9 @@ public class BuildConfigurationGroup extends Group {
 
         HBox hb = new HBox();
         Label t = new Label(buildConfiguration.getName());
-        
+        t.setTextFill(WHITE);
+        t.setFont(font(null, BOLD, 14));
+
         /*
          * this section commented out
          * we may want to experiment with this if we want to decrease the size of the text to fit inside circle
