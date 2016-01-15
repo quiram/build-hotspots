@@ -9,8 +9,8 @@ import com.github.quiram.buildhotspots.drawingdata.Root;
 import com.github.quiram.buildhotspots.drawingdata.Root.BuildConfigurations;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DrawingBuilder {
 
@@ -22,13 +22,44 @@ public class DrawingBuilder {
         this.transformer = transformer;
     }
 
-    public Root build() {
-        final BuildConfigurations buildConfigurations = new BuildConfigurations();
-        final List<BuildConfigurationType> buildConfigurationsList = buildConfigurations.getBuildConfiguration();
+    public Root buildForAll() {
+        final List<String> allBuildConfigurations = ciClient.getAllBuildConfigurations();
 
-        // First pass: collect basic data for all builds
-        ciClient.getAllBuildConfigurations().forEach(buildName -> {
-            final Optional<LocalDateTime> dateOfOldestBuild = ciClient.getDateOfOldestBuildFor(buildName);
+        return buildRootDocument(allBuildConfigurations);
+    }
+
+    public Root buildFor(List<String> buildNames) {
+        Set<String> workingSet = new HashSet<>(buildNames);
+        Set<String> extendedList = new HashSet<>();
+
+        while (!workingSet.isEmpty()) {
+            extendedList.addAll(workingSet);
+
+            final Set<String> dependencies = workingSet.stream().flatMap(buildName -> ciClient.getDependenciesFor(buildName).stream()).collect(Collectors.toSet());
+            workingSet.addAll(dependencies);
+
+            workingSet.removeAll(extendedList);
+        }
+
+        return buildRootDocument(new ArrayList<>(extendedList));
+    }
+
+    private Root buildRootDocument(List<String> buildNames) {
+        final BuildConfigurations buildConfigurations = new BuildConfigurations();
+        final Root root = new Root();
+        root.setBuildConfigurations(buildConfigurations);
+        final List<BuildConfigurationType> buildConfigurationsList = root.getBuildConfigurations().getBuildConfiguration();
+
+        // First pass: collect basic data for the builds
+        buildNames.forEach(buildName -> {
+            final Optional<LocalDateTime> dateOfOldestBuild;
+
+            try {
+                dateOfOldestBuild = ciClient.getDateOfOldestBuildFor(buildName);
+            } catch (Exception e) {
+                throw new BuildNotFoundException(buildName, e);
+            }
+
             dateOfOldestBuild.ifPresent(transformer::add);
 
             final BuildConfigurationType buildConfiguration = new BuildConfigurationType();
@@ -42,8 +73,6 @@ public class DrawingBuilder {
         // Second pass: calculate relative frequency for all available builds
         buildConfigurationsList.forEach(this::setBuildStats);
 
-        final Root root = new Root();
-        root.setBuildConfigurations(buildConfigurations);
         return root;
     }
 

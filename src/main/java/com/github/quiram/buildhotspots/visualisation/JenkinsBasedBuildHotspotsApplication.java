@@ -17,7 +17,7 @@ public class JenkinsBasedBuildHotspotsApplication extends BuildHotspotsApplicati
         JenkinsClient jenkinsClient = new JenkinsClient(source);
 
         DrawingBuilder drawingBuilder = new DrawingBuilder(jenkinsClient, new DateToFrequencyTransformer());
-        return drawingBuilder.build();
+        return drawingBuilder.buildForAll();
     }
 
     @Override
