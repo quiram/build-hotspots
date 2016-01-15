@@ -39,13 +39,13 @@ public class TwoElementsInDateToFrequencyTransformerTest extends DateToFrequency
     }
 
     @Test
-    public void getFrequencyForOldestReturns100() {
-        assertEquals(100, transformer.getFrequencyFor(older));
+    public void getFrequencyForOldestReturns0() {
+        assertEquals(0, transformer.getFrequencyFor(older));
     }
 
     @Test
-    public void getFrequencyForLatestReturns0() {
-        assertEquals(0, transformer.getFrequencyFor(later));
+    public void getFrequencyForLatestReturns100() {
+        assertEquals(100, transformer.getFrequencyFor(later));
     }
 
     @Test
@@ -53,6 +53,12 @@ public class TwoElementsInDateToFrequencyTransformerTest extends DateToFrequency
         LocalDateTime middle = older.plusHours(12);
 
         assertEquals(50, transformer.getFrequencyFor(middle));
+    }
+
+    @Test
+    public void getFrequencyForBuildInFirstQuartileReturns25() {
+        LocalDateTime firstQuartile = older.plusHours(6);
+        assertEquals(25, transformer.getFrequencyFor(firstQuartile));
     }
 
     @Test
@@ -71,5 +77,6 @@ public class TwoElementsInDateToFrequencyTransformerTest extends DateToFrequency
 
         LocalDateTime tooNewDate = later.plusDays(1);
         transformer.getFrequencyFor(tooNewDate);
+
     }
 }

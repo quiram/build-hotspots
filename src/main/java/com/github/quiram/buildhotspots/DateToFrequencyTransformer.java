@@ -46,8 +46,8 @@ public class DateToFrequencyTransformer {
             throw new IllegalArgumentException("Date to calculate frequency from must be within range of dates previously inserted in the transformer.");
         }
 
-        long totalRange = mostRecent.until(oldest, SECONDS);
-        long datePosition = mostRecent.until(dateTime, SECONDS);
+        long totalRange = oldest.until(mostRecent, SECONDS);
+        long datePosition = oldest.until(dateTime, SECONDS);
 
         return datePosition * 100 / totalRange;
     }
