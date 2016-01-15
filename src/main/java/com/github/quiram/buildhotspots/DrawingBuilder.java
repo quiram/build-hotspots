@@ -106,7 +106,6 @@ public class DrawingBuilder {
         BuildStats buildStats = new BuildStats();
         final String buildName = buildConfiguration.getName();
         final Optional<LocalDateTime> dateOfOldestBuild = ciClient.getDateOfOldestBuildFor(buildName);
-        System.out.println(format("Oldest Build of %s was %s, which will be turned to %s", buildName, dateOfOldestBuild.map(LocalDateTime::toString).orElse("unknown"), dateOfOldestBuild.map(transformer::getFrequencyFor).orElse(50L)));
         buildStats.setPercentage(dateOfOldestBuild.map(transformer::getFrequencyFor).orElse(50L).byteValue());
 
         buildConfiguration.setBuildStats(buildStats);
