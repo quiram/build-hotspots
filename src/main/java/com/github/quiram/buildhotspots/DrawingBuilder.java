@@ -10,7 +10,9 @@ import com.github.quiram.buildhotspots.drawingdata.Root.BuildConfigurations;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.BiFunction;
+
+import static java.util.stream.Collectors.toSet;
 
 public class DrawingBuilder {
 
@@ -35,13 +37,20 @@ public class DrawingBuilder {
         while (!workingSet.isEmpty()) {
             extendedList.addAll(workingSet);
 
-            final Set<String> dependencies = workingSet.stream().flatMap(buildName -> ciClient.getDependenciesFor(buildName).stream()).collect(Collectors.toSet());
+            final Set<String> dependencies = getBuildsApplying(CiClient::getDependenciesFor, workingSet);
+            final Set<String> dependents = getBuildsApplying(CiClient::getDependentsFor, workingSet);
+
             workingSet.addAll(dependencies);
+            workingSet.addAll(dependents);
 
             workingSet.removeAll(extendedList);
         }
 
         return buildRootDocument(new ArrayList<>(extendedList));
+    }
+
+    private Set<String> getBuildsApplying(BiFunction<CiClient, String, List<String>> relatedProjectsOperation, Set<String> workingSet) {
+        return workingSet.stream().flatMap(buildName -> relatedProjectsOperation.apply(ciClient, buildName).stream()).collect(toSet());
     }
 
     private Root buildRootDocument(List<String> buildNames) {

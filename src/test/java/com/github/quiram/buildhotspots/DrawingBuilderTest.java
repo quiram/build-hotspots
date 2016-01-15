@@ -195,6 +195,19 @@ public class DrawingBuilderTest {
         assertEquals(3, buildConfigurationList.size());
     }
 
+    @Test
+    public void buildForIncludesDependents() {
+        final String buildName = "my-build";
+        final String dependencyBuildName = "dependency-build";
+        final List<String> buildNamesList = singletonList(dependencyBuildName);
+
+        when(ciClient.getDependentsFor(dependencyBuildName)).thenReturn(singletonList(buildName));
+        when(ciClient.getDependenciesFor(buildName)).thenReturn(singletonList(dependencyBuildName));
+
+        Root documentRoot = drawingBuilder.buildFor(buildNamesList);
+        assertRootHasTwoDependentBuilds(documentRoot, dependencyBuildName, buildName);
+    }
+
     private void assertEmptyDocument(Root documentRoot) {
         assertNotNull(documentRoot);
         final BuildConfigurations buildConfigurations = documentRoot.getBuildConfigurations();
