@@ -4,7 +4,8 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BuildConfigurationTest {
     @Test
@@ -100,9 +101,9 @@ public class BuildConfigurationTest {
     }
 
     @Test
-    public void buildsAreIrrelevantByDefault() {
+    public void buildsAreRelevantByDefault() {
         final BuildConfiguration a = getBuildConfiguration();
-        assertFalse(a.isRelevant());
+        assertTrue(a.isRelevant());
     }
 
     @Test

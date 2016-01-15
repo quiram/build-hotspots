@@ -8,7 +8,7 @@ import static java.util.Collections.unmodifiableSet;
 public class BuildConfiguration {
     private Set<BuildConfiguration> dependencies = new HashSet<>();
     private Set<BuildConfiguration> dependents = new HashSet<>();
-    private boolean relevant = false;
+    private boolean relevant = true;
     private final String name;
     private int frequency;
 

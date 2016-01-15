@@ -47,10 +47,11 @@ import static com.github.quiram.buildhotspots.visualisation.layouts.OriginalLayo
 @SuppressWarnings("restriction")
 public abstract class BuildHotspotsApplicationBase extends Application {
     protected Stage m_primaryStage = null;
+    protected Map<String, BuildConfiguration> buildConfigurationMap;
+
     private final Group m_root = new Group();
     private ScrollPane m_scroll = null;
     private Map<String, LayoutBase> m_layouts = null; //List of supported layouts
-    private Map<String, BuildConfiguration> buildConfigurationMap;
 
     public BuildHotspotsApplicationBase() {
         m_layouts = new HashMap<>();
@@ -186,30 +187,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 
     private Map<String, BuildConfigurationGroup> m_buildConfigurations = new HashMap<>();
 
-    protected void selectBuilds(Root p_docRoot) {
-        buildConfigurationMap = createBuildConfigurationMap(p_docRoot);
-
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
-
-
-        BorderPane listOfBuilds = getListOfBuildsPane();
-        grid.add(listOfBuilds, 0, 0);
-        Scene scene = new Scene(grid, 250, 400);
-
-        m_primaryStage.setScene(scene);
-
-        Button btn = new Button();
-        btn.setText("Show me hotspots!");
-        btn.setOnAction(event -> AddDrawingToScene(p_docRoot));
-
-        grid.add(btn, 0, 1);
-    }
-
-    private BorderPane getListOfBuildsPane() {
+    protected BorderPane getListOfBuildsPane() {
         ListView<BuildConfigurationCheckBox> listView = new ListView<>();
 
         buildConfigurationMap.keySet().stream().sorted().forEach(buildConfigurationName ->
@@ -303,7 +281,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
         }
     }
 
-    private Map<String, BuildConfiguration> createBuildConfigurationMap(Root p_docRoot) {
+    protected Map<String, BuildConfiguration> createBuildConfigurationMap(Root p_docRoot) {
         Map<String, BuildConfiguration> buildConfigurationMap = new HashMap<>();
         // First pass: create an object for each buildConfiguration
         p_docRoot.getBuildConfigurations().getBuildConfiguration().stream()
@@ -345,7 +323,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 
         Button btn = new Button();
         btn.setText("Select builds");
-        btn.setOnAction(event -> selectBuilds(getRootDocument(sourceSelector.getSource())));
+        btn.setOnAction(event -> selectBuilds(sourceSelector.getSource()));
 
         grid.add(sourceSelector, 0, 0);
         grid.add(btn, 0, 1);
@@ -357,7 +335,7 @@ public abstract class BuildHotspotsApplicationBase extends Application {
 
     protected abstract SourceSelector getSourceSelector();
 
-    protected abstract Root getRootDocument(String source);
+    protected abstract void selectBuilds(String source);
 
     @Override
     public void start(final Stage primaryStage) throws Exception {

@@ -1,6 +1,12 @@
 package com.github.quiram.buildhotspots.visualisation;
 
 import com.github.quiram.buildhotspots.drawingdata.Root;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -39,4 +45,31 @@ public class FileBasedBuildHotspotsApplication extends BuildHotspotsApplicationB
         return new FileSourceSelector();
     }
 
+    @Override
+    protected void selectBuilds(String source) {
+        selectBuilds(getRootDocument(source));
+    }
+
+    private void selectBuilds(Root p_docRoot) {
+        buildConfigurationMap = createBuildConfigurationMap(p_docRoot);
+
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+
+        BorderPane listOfBuilds = getListOfBuildsPane();
+        grid.add(listOfBuilds, 0, 0);
+        Scene scene = new Scene(grid, 250, 400);
+
+        m_primaryStage.setScene(scene);
+
+        Button btn = new Button();
+        btn.setText("Show me hotspots!");
+        btn.setOnAction(event -> AddDrawingToScene(p_docRoot));
+
+        grid.add(btn, 0, 1);
+    }
 }
