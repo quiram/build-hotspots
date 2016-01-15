@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 
 public class DrawingBuilder {
@@ -34,17 +35,33 @@ public class DrawingBuilder {
         Set<String> workingSet = new HashSet<>(buildNames);
         Set<String> extendedList = new HashSet<>();
 
+        // Work out dependencies (travel only up)
         while (!workingSet.isEmpty()) {
+            System.out.println("Working set is " + workingSet);
             extendedList.addAll(workingSet);
 
             final Set<String> dependencies = getBuildsApplying(CiClient::getDependenciesFor, workingSet);
-            final Set<String> dependents = getBuildsApplying(CiClient::getDependentsFor, workingSet);
-
+            System.out.println("Dependencies found: " + dependencies);
             workingSet.addAll(dependencies);
+
+            workingSet.removeAll(extendedList);
+        }
+
+        // Work out dependents (travel only down)
+        workingSet.addAll(buildNames);
+        while (!workingSet.isEmpty()) {
+            System.out.println("Working set is " + workingSet);
+            extendedList.addAll(workingSet);
+
+            final Set<String> dependents = getBuildsApplying(CiClient::getDependentsFor, workingSet);
+            System.out.println("Dependents found: " + dependents);
+
             workingSet.addAll(dependents);
 
             workingSet.removeAll(extendedList);
         }
+
+        System.out.println(format("Building drawing for '%s', which will include: %s", buildNames, extendedList));
 
         return buildRootDocument(new ArrayList<>(extendedList));
     }
@@ -87,7 +104,9 @@ public class DrawingBuilder {
 
     private void setBuildStats(BuildConfigurationType buildConfiguration) {
         BuildStats buildStats = new BuildStats();
-        final Optional<LocalDateTime> dateOfOldestBuild = ciClient.getDateOfOldestBuildFor(buildConfiguration.getName());
+        final String buildName = buildConfiguration.getName();
+        final Optional<LocalDateTime> dateOfOldestBuild = ciClient.getDateOfOldestBuildFor(buildName);
+        System.out.println(format("Oldest Build of %s was %s, which will be turned to %s", buildName, dateOfOldestBuild.map(LocalDateTime::toString).orElse("unknown"), dateOfOldestBuild.map(transformer::getFrequencyFor).orElse(50L)));
         buildStats.setPercentage(dateOfOldestBuild.map(transformer::getFrequencyFor).orElse(50L).byteValue());
 
         buildConfiguration.setBuildStats(buildStats);

@@ -199,12 +199,24 @@ public class DrawingBuilderTest {
     public void buildForIncludesDependents() {
         final String buildName = "my-build";
         final String dependencyBuildName = "dependency-build";
-        final List<String> buildNamesList = singletonList(dependencyBuildName);
 
         when(ciClient.getDependentsFor(dependencyBuildName)).thenReturn(singletonList(buildName));
         when(ciClient.getDependenciesFor(buildName)).thenReturn(singletonList(dependencyBuildName));
 
-        Root documentRoot = drawingBuilder.buildFor(buildNamesList);
+        Root documentRoot = drawingBuilder.buildFor(singletonList(dependencyBuildName));
+        assertRootHasTwoDependentBuilds(documentRoot, dependencyBuildName, buildName);
+    }
+
+    @Test
+    public void dependenciesOfDependentsOtherThanThisBuildAreNotNeeded() {
+        final String buildName = "my-build";
+        final String dependencyBuildName = "dependency-build";
+        final String unrelatedDependent = "unrelated-dependent";
+
+        when(ciClient.getDependentsFor(dependencyBuildName)).thenReturn(asList(buildName, unrelatedDependent));
+        when(ciClient.getDependenciesFor(buildName)).thenReturn(singletonList(dependencyBuildName));
+
+        Root documentRoot = drawingBuilder.buildFor(singletonList(buildName));
         assertRootHasTwoDependentBuilds(documentRoot, dependencyBuildName, buildName);
     }
 
@@ -226,6 +238,7 @@ public class DrawingBuilderTest {
 
     private void assertRootHasTwoDependentBuilds(Root documentRoot, String mainBuildName, String dependentBuildName) {
         final List<BuildConfigurationType> buildConfigurationList = documentRoot.getBuildConfigurations().getBuildConfiguration();
+        assertEquals(2, buildConfigurationList.size());
 
         final BuildConfigurationType buildConfiguration = buildConfigurationList.stream().filter(b -> b.getName().equals(dependentBuildName)).findFirst().get();
         final List<DependencyType> dependencyList = buildConfiguration.getDependencies().getDependency();
