@@ -100,7 +100,7 @@ public class JenkinsClientTest {
     @Test
     public void getDependenciesForBuildWithOneDependency() {
         final String jobName = "project-one";
-        stubReturnsListOfDependenciesFor(jobName);
+        stubReturnsJobDataFor(jobName);
 
         List<String> dependencies = jenkinsClient.getDependenciesFor(jobName);
         assertNotNull(dependencies);
@@ -111,14 +111,34 @@ public class JenkinsClientTest {
     @Test
     public void getDependenciesForBuildWithMultipleDependency() {
         final String jobName = "project-two";
-        stubReturnsListOfDependenciesFor(jobName);
+        stubReturnsJobDataFor(jobName);
 
         List<String> dependencies = jenkinsClient.getDependenciesFor(jobName);
         assertNotNull(dependencies);
         assertEquals(3, dependencies.size());
     }
 
-    private void stubReturnsListOfDependenciesFor(String buildName) {
+    @Test
+    public void getDependentsForBuildWithNoDependents() {
+        final String jobName = "project-one";
+        stubReturnsJobDataFor(jobName);
+
+        List<String> dependents = jenkinsClient.getDependentsFor(jobName);
+        assertNotNull(dependents);
+        assertTrue(dependents.isEmpty());
+    }
+
+    @Test
+    public void getDependentsForBuildWithOneDependent() {
+        final String jobName = "project-two";
+        stubReturnsJobDataFor(jobName);
+
+        List<String> dependents = jenkinsClient.getDependentsFor(jobName);
+        assertNotNull(dependents);
+        assertFalse(dependents.isEmpty());
+    }
+
+    private void stubReturnsJobDataFor(String buildName) {
         stubFor(get(urlEqualTo(format("/job/%s/api/json", buildName)))
                 .willReturn(aResponse()
                         .withStatus(200)

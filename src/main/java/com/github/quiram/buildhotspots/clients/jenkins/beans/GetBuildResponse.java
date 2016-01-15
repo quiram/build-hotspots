@@ -6,9 +6,14 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetBuildResponse {
-    private List<UpstreamProject> upstreamProjects;
+    private List<Project> upstreamProjects;
+    private List<Project> downstreamProjects;
 
-    public List<UpstreamProject> getUpstreamProjects() {
+    public List<Project> getUpstreamProjects() {
         return upstreamProjects;
+    }
+
+    public List<Project> getDownstreamProjects() {
+        return downstreamProjects;
     }
 }

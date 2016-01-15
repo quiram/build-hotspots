@@ -111,7 +111,13 @@
   ],
   "queueItem": null,
   "concurrentBuild": false,
-  "downstreamProjects": [],
+  "downstreamProjects": [
+    {
+      "name": "leaf-project",
+      "url": "https://localhost:8080/job/leaf-project/",
+      "color": "blue"
+    }
+  ],
   "scm": {
   },
   "upstreamProjects": [

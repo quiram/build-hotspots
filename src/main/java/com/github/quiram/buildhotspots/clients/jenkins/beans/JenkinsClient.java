@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -80,8 +81,17 @@ public class JenkinsClient implements CiClient {
 
     @Override
     public List<String> getDependenciesFor(String jobName) {
+        return getDataForJob(jobName, GetBuildResponse::getUpstreamProjects);
+    }
+
+    @Override
+    public List<String> getDependentsFor(String jobName) {
+        return getDataForJob(jobName, GetBuildResponse::getDownstreamProjects);
+    }
+
+    private List<String> getDataForJob(String jobName, Function<GetBuildResponse, List<Project>> operation) {
         final GetBuildResponse response = requestData(GetBuildResponse.class, "", "job", jobName);
-        final List<UpstreamProject> upstreamProjects = response.getUpstreamProjects();
-        return upstreamProjects.stream().map(UpstreamProject::getName).collect(toList());
+        final List<Project> referredProjects = operation.apply(response);
+        return referredProjects.stream().map(Project::getName).collect(toList());
     }
 }
